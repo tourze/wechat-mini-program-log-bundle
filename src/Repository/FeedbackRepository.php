@@ -4,7 +4,6 @@ namespace WechatMiniProgramLogBundle\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use DoctrineEnhanceBundle\Repository\CommonRepositoryAware;
 use WechatMiniProgramLogBundle\Entity\Feedback;
 
 /**
@@ -15,8 +14,6 @@ use WechatMiniProgramLogBundle\Entity\Feedback;
  */
 class FeedbackRepository extends ServiceEntityRepository
 {
-    use CommonRepositoryAware;
-
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Feedback::class);
