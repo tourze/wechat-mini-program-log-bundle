@@ -11,7 +11,7 @@ use Tourze\DoctrineTimestampBundle\Attribute\UpdateTimeColumn;
 use Tourze\EasyAdmin\Attribute\Column\ExportColumn;
 use Tourze\EasyAdmin\Attribute\Column\ListColumn;
 use Tourze\EasyAdmin\Attribute\Filter\Filterable;
-use WechatMiniProgramBundle\Enum\PenaltyStatus;
+use WechatMiniProgramLogBundle\Enum\PenaltyStatus;
 use WechatMiniProgramLogBundle\Repository\PenaltyListRepository;
 
 /**

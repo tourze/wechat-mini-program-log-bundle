@@ -10,10 +10,10 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Tourze\Symfony\CronJob\Attribute\AsCronTask;
 use WechatMiniProgramBundle\Entity\Account;
-use WechatMiniProgramBundle\Enum\PenaltyStatus;
 use WechatMiniProgramBundle\Repository\AccountRepository;
 use WechatMiniProgramBundle\Service\Client;
 use WechatMiniProgramLogBundle\Entity\PenaltyList;
+use WechatMiniProgramLogBundle\Enum\PenaltyStatus;
 use WechatMiniProgramLogBundle\Repository\PenaltyListRepository;
 use WechatMiniProgramLogBundle\Request\GetWechatPenaltyListRequest;
 
