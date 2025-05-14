@@ -16,5 +16,8 @@ class WechatMiniProgramLogExtension extends Extension
             new FileLocator(__DIR__ . '/../Resources/config')
         );
         $loader->load('services.yaml');
+        
+        // 设置一个参数，用于测试配置是否加载
+        $container->setParameter('wechat_mini_program_log.loaded', true);
     }
 }
