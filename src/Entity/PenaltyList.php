@@ -4,10 +4,9 @@ namespace WechatMiniProgramLogBundle\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Stringable;
 use Tourze\DoctrineSnowflakeBundle\Service\SnowflakeIdGenerator;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
-use Tourze\EasyAdmin\Attribute\Column\ExportColumn;
-use Tourze\EasyAdmin\Attribute\Column\ListColumn;
 use WechatMiniProgramLogBundle\Enum\PenaltyStatus;
 use WechatMiniProgramLogBundle\Repository\PenaltyListRepository;
 
@@ -16,47 +15,29 @@ use WechatMiniProgramLogBundle\Repository\PenaltyListRepository;
  */
 #[ORM\Entity(repositoryClass: PenaltyListRepository::class)]
 #[ORM\Table(name: 'wechat_penalty_list', options: ['comment' => '小程序交易体验分违规记录'])]
-class PenaltyList
+class PenaltyList implements Stringable
 {
     use TimestampableAware;
-    #[ExportColumn]
-    #[ListColumn(order: -1, sorter: true)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
     #[ORM\CustomIdGenerator(SnowflakeIdGenerator::class)]
     #[ORM\Column(type: Types::BIGINT, nullable: false, options: ['comment' => 'ID'])]
     private ?string $id = null;
 
-    #[ListColumn]
-    #[ORM\Column(length: 255, unique: true, options: ['comment' => '扣分记录ID'])]
     private ?string $illegalOrderId = null;
 
-    #[ListColumn]
-    #[ORM\Column(length: 100, options: ['comment' => '投诉单ID'])]
     private ?string $complaintOrderId = null;
 
-    #[ListColumn]
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, options: ['comment' => '扣分记录创建时间'])]
     private ?\DateTimeInterface $illegalTime = null;
 
-    #[ListColumn]
-    #[ORM\Column(length: 255, options: ['comment' => '违规行为'])]
     private ?string $illegalWording = null;
 
-    #[ListColumn]
-    #[ORM\Column(length: 20, enumType: PenaltyStatus::class, options: ['comment' => '扣分记录状态'])]
     private ?PenaltyStatus $penaltyStatus = null;
 
-    #[ListColumn]
-    #[ORM\Column(options: ['comment' => '扣除分数'])]
     private ?int $minusScore = null;
 
-    #[ListColumn]
-    #[ORM\Column(length: 100, nullable: true, options: ['comment' => '订单号'])]
     private ?string $orderId = null;
 
-    #[ListColumn]
-    #[ORM\Column(nullable: true, options: ['comment' => '当前小程序的交易体验分'])]
     private ?int $currentScore = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true, options: ['comment' => '原始数据'])]
@@ -171,4 +152,9 @@ class PenaltyList
     public function setRawData(?string $rawData): void
     {
         $this->rawData = $rawData;
-    }}
+    }
+    public function __toString(): string
+    {
+        return (string) $this->id;
+    }
+}

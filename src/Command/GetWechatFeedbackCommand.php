@@ -21,7 +21,9 @@ use WechatMiniProgramLogBundle\Request\GetWechatFeedbackRequest;
 #[AsCommand(name: 'wechat-mini-program:get-feedback', description: '定期获取小程序反馈信息')]
 class GetWechatFeedbackCommand extends Command
 {
-    public function __construct(
+    
+    public const NAME = 'wechat-mini-program:get-feedback';
+public function __construct(
         private readonly Client $client,
         private readonly FeedbackRepository $feedbackRepository,
         private readonly AccountRepository $accountRepository,
@@ -56,7 +58,7 @@ class GetWechatFeedbackCommand extends Command
             $feedback = $this->feedbackRepository->findOneBy([
                 'wxRecordId' => $item['record_id'],
             ]);
-            if ($feedback) {
+            if ((bool) $feedback) {
                 continue;
             }
             $feedback = new Feedback();
@@ -70,7 +72,7 @@ class GetWechatFeedbackCommand extends Command
             $feedback->setHeadUrl($item['head_url']);
             $feedback->setFeedbackType(FeedbackType::tryFrom($item['type']));
             $feedback->setMediaIds($item['mediaIds']);
-            if (isset($item['systemInfo'])) {
+            if ((bool) isset($item['systemInfo'])) {
                 $feedback->setSystemInfo($item['systemInfo']);
             }
             $feedback->setRawData(json_encode($item));

@@ -26,7 +26,9 @@ use WechatMiniProgramLogBundle\Request\GetErrorDetailRequest;
 #[AsCommand(name: 'wechat:official-account:SyncGetErrorDetailCommand', description: '运维中心-查询js错误详情')]
 class SyncGetErrorDetailCommand extends Command
 {
-    public function __construct(
+    
+    public const NAME = 'wechat:official-account:SyncGetErrorDetailCommand';
+public function __construct(
         private readonly AccountRepository $accountRepository,
         private readonly Client $client,
         private readonly ErrorListDataRepository $errorDetailDataRepository,

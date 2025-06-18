@@ -22,7 +22,9 @@ use WechatMiniProgramLogBundle\Request\GetWechatPenaltyListRequest;
 #[AsCommand(name: 'wechat-mini-program:get-penalty', description: '获取小程序交易体验分违规记录')]
 class GetWechatPenaltyListCommand extends Command
 {
-    public function __construct(
+    
+    public const NAME = 'wechat-mini-program:get-penalty';
+public function __construct(
         private readonly Client $client,
         private readonly PenaltyListRepository $penaltyListRepository,
         private readonly AccountRepository $accountRepository,
@@ -55,7 +57,7 @@ class GetWechatPenaltyListCommand extends Command
             $penalty = $this->penaltyListRepository->findOneBy([
                 'illegalOrderId' => $item['illegalOrderId'],
             ]);
-            if (empty($penalty)) {
+            if ((bool) empty($penalty)) {
                 $penalty = new PenaltyList();
                 $penalty->setIllegalOrderId($item['illegalOrderId']);
                 $penalty->setComplaintOrderId($item['complaintOrderId']);
@@ -76,7 +78,7 @@ class GetWechatPenaltyListCommand extends Command
             $this->entityManager->flush();
         }
 
-        if (($offset + 1) * $limit < $response['totalNum']) {
+        if ((bool) ($offset + 1) * $limit < $response['totalNum']) {
             ++$offset;
             $this->request($account, $offset, $limit);
         }

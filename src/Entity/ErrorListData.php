@@ -4,72 +4,44 @@ namespace WechatMiniProgramLogBundle\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Stringable;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
-use Tourze\EasyAdmin\Attribute\Action\Deletable;
-use Tourze\EasyAdmin\Attribute\Column\ExportColumn;
-use Tourze\EasyAdmin\Attribute\Column\ListColumn;
-use Tourze\EasyAdmin\Attribute\Permission\AsPermission;
 use WechatMiniProgramBundle\Entity\Account;
 use WechatMiniProgramLogBundle\Repository\ErrorListDataRepository;
 
-#[AsPermission(title: '查询错误列表')]
-#[Deletable]
 #[ORM\Entity(repositoryClass: ErrorListDataRepository::class)]
 #[ORM\Table(name: 'wechat_mini_program_error_list', options: ['comment' => '查询错误列表'])]
 #[ORM\UniqueConstraint(name: 'wechat_mini_program_error_list_uniq', columns: ['account_id', 'date', 'open_id', 'error_msg_code'])]
-class ErrorListData
+class ErrorListData implements Stringable
 {
     use TimestampableAware;
-    #[ListColumn(order: -1)]
-    #[ExportColumn]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER, options: ['comment' => 'ID'])]
     private ?int $id = 0;
 
-    #[ListColumn]
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?Account $account = null;
 
-    #[ListColumn]
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $date = null;
 
-    #[ListColumn]
-    #[ORM\Column]
     private ?string $openId = null;
 
-    #[ListColumn]
-    #[ORM\Column]
     private ?string $errorMsgCode = null;
 
-    #[ListColumn]
-    #[ORM\Column]
     private ?string $errorMsg = null;
 
-    #[ListColumn]
-    #[ORM\Column]
     private ?int $uv = null;
 
-    #[ListColumn]
-    #[ORM\Column]
     private ?int $pv = null;
 
-    #[ListColumn]
-    #[ORM\Column]
     private ?string $errorStackCode = null;
 
-    #[ListColumn]
-    #[ORM\Column]
     private ?string $errorStack = null;
 
-    #[ListColumn]
-    #[ORM\Column]
     private ?string $pvPercent = null;
 
-    #[ListColumn]
-    #[ORM\Column]
     private ?string $uvPercent = null;
 
     public function getId(): ?int
@@ -207,4 +179,9 @@ class ErrorListData
         $this->openId = $openId;
 
         return $this;
-    }}
+    }
+    public function __toString(): string
+    {
+        return (string) $this->id;
+    }
+}

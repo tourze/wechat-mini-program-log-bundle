@@ -25,7 +25,9 @@ use WechatMiniProgramLogBundle\Request\GetErrorListRequest;
 #[AsCommand(name: 'wechat:official-account:SyncGetErrorListCommand', description: '运维中心-查询错误列表')]
 class SyncGetErrorListCommand extends Command
 {
-    public function __construct(
+    
+    public const NAME = 'wechat:official-account:SyncGetErrorListCommand';
+public function __construct(
         private readonly AccountRepository $accountRepository,
         private readonly Client $client,
         private readonly ErrorListDataRepository $errorListDataRepository,

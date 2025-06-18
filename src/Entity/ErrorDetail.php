@@ -4,112 +4,64 @@ namespace WechatMiniProgramLogBundle\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Stringable;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
-use Tourze\EasyAdmin\Attribute\Action\Deletable;
-use Tourze\EasyAdmin\Attribute\Column\ExportColumn;
-use Tourze\EasyAdmin\Attribute\Column\ListColumn;
-use Tourze\EasyAdmin\Attribute\Permission\AsPermission;
 use WechatMiniProgramBundle\Entity\Account;
 use WechatMiniProgramLogBundle\Repository\ErrorDetailRepository;
 
-#[AsPermission(title: '错误详情')]
-#[Deletable]
 #[ORM\Entity(repositoryClass: ErrorDetailRepository::class)]
 #[ORM\Table(name: 'wechat_mini_program_error_detail', options: ['comment' => '错误详情'])]
 #[ORM\UniqueConstraint(name: 'wechat_mini_program_error_detail_uniq', columns: ['account_id', 'date', 'open_id', 'error_msg_code'])]
-class ErrorDetail
+class ErrorDetail implements Stringable
 {
     use TimestampableAware;
-    #[ListColumn(order: -1)]
-    #[ExportColumn]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER, options: ['comment' => 'ID'])]
     private ?int $id = 0;
 
-    #[ListColumn]
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?Account $account = null;
 
-    #[ListColumn]
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $date = null;
 
-    #[ListColumn]
-    #[ORM\Column]
     private ?string $openId = null;
 
-    #[ListColumn]
-    #[ORM\Column]
     private ?string $errorMsgCode = null;
 
-    #[ListColumn]
-    #[ORM\Column]
     private ?string $errorMsg = null;
 
-    #[ListColumn]
-    #[ORM\Column]
     private ?string $errorStackCode = null;
 
-    #[ListColumn]
-    #[ORM\Column]
     private ?string $errorStack = null;
 
-    #[ListColumn]
-    #[ORM\Column]
     private ?string $count = null;
 
-    #[ListColumn]
-    #[ORM\Column]
     private ?string $sdkVersion = null;
 
-    #[ListColumn]
-    #[ORM\Column]
     private ?string $clientVersion = null;
 
-    #[ListColumn]
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $timeStamp = null;
 
-    #[ListColumn]
-    #[ORM\Column]
     private ?string $appVersion = null;
 
-    #[ListColumn]
-    #[ORM\Column]
     private ?string $ds = null;
 
-    #[ListColumn]
-    #[ORM\Column]
     private ?string $osName = null;
 
-    #[ListColumn]
-    #[ORM\Column]
     private ?string $pluginVersion = null;
 
-    #[ListColumn]
-    #[ORM\Column]
     private ?string $appId = null;
 
-    #[ListColumn]
-    #[ORM\Column]
     private ?string $deviceModel = null;
 
-    #[ListColumn]
-    #[ORM\Column]
     private ?string $source = null;
 
-    #[ListColumn]
-    #[ORM\Column]
     private ?string $route = null;
 
-    #[ListColumn]
-    #[ORM\Column]
     private ?string $uin = null;
 
-    #[ListColumn]
-    #[ORM\Column]
     private ?string $nickname = null;
 
     public function getId(): ?int
@@ -367,4 +319,9 @@ class ErrorDetail
         $this->openId = $openId;
 
         return $this;
-    }}
+    }
+    public function __toString(): string
+    {
+        return (string) $this->id;
+    }
+}
