@@ -102,7 +102,7 @@ class ErrorListData implements Stringable
         return $this->pv;
     }
 
-    public function setPv(string $pv): static
+    public function setPv(int $pv): static
     {
         $this->pv = $pv;
 
@@ -114,7 +114,7 @@ class ErrorListData implements Stringable
         return $this->uv;
     }
 
-    public function setUv(string $uv): static
+    public function setUv(int $uv): static
     {
         $this->uv = $uv;
 

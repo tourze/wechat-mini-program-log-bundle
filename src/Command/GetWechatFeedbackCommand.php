@@ -2,7 +2,7 @@
 
 namespace WechatMiniProgramLogBundle\Command;
 
-use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -18,7 +18,7 @@ use WechatMiniProgramLogBundle\Repository\FeedbackRepository;
 use WechatMiniProgramLogBundle\Request\GetWechatFeedbackRequest;
 
 #[AsCronTask('15 * * * *')]
-#[AsCommand(name: 'wechat-mini-program:get-feedback', description: '定期获取小程序反馈信息')]
+#[AsCommand(name: self::NAME, description: '定期获取小程序反馈信息')]
 class GetWechatFeedbackCommand extends Command
 {
     
@@ -36,7 +36,7 @@ public function __construct(
     {
         $accounts = $this->accountRepository->findBy(['valid' => true]);
         foreach ($accounts as $account) {
-            $start = Carbon::now()->getTimestamp();
+            $start = CarbonImmutable::now()->getTimestamp();
             $this->request($account, $output, 1, 20);
             $output->writeln("{$account->getId()} wechat-mini-program:get-feedback command end, use time:" . time() - $start);
         }
@@ -64,7 +64,7 @@ public function __construct(
             $feedback = new Feedback();
             $feedback->setAccount($account);
             $feedback->setWxRecordId($item['record_id']);
-            $feedback->setWxCreateTime(Carbon::parse($item['create_time']));
+            $feedback->setWxCreateTime(CarbonImmutable::parse($item['create_time']));
             $feedback->setContent($item['content']);
             $feedback->setPhone($item['phone']);
             $feedback->setOpenid($item['openid'] ?? null);

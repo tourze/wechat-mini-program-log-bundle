@@ -2,7 +2,7 @@
 
 namespace WechatMiniProgramLogBundle\Command;
 
-use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -22,11 +22,11 @@ use WechatMiniProgramLogBundle\Request\GetErrorListRequest;
  */
 #[AsCronTask('6 3 * * *')]
 #[AsCronTask('35 11 * * *')]
-#[AsCommand(name: 'wechat:official-account:SyncGetErrorListCommand', description: '运维中心-查询错误列表')]
+#[AsCommand(name: self::NAME, description: '运维中心-查询错误列表')]
 class SyncGetErrorListCommand extends Command
 {
     
-    public const NAME = 'wechat:official-account:SyncGetErrorListCommand';
+    public const NAME = 'wechat-mini-program:sync-get-error-list';
 public function __construct(
         private readonly AccountRepository $accountRepository,
         private readonly Client $client,
@@ -39,7 +39,7 @@ public function __construct(
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $now = Carbon::now()->startOfDay();
+        $now = CarbonImmutable::now()->startOfDay();
 
         foreach ($this->accountRepository->findBy(['valid' => true]) as $account) {
             $request = new GetErrorListRequest();
@@ -65,11 +65,11 @@ public function __construct(
             foreach ($response['data'] as $item) {
                 $errorList = $this->errorListDataRepository->findOneBy([
                     'account' => $account,
-                    'date' => Carbon::now()->subDays(2),
+                    'date' => CarbonImmutable::now()->subDays(2),
                     'open_id' => $response['openid'],
                     'error_msg_code' => $item['errorMsgMd5'],
                 ]);
-                if (!$errorList) {
+                if ($errorList === null) {
                     $errorList = new ErrorListData();
                     $errorList->setOpenId($response['openid']);
                     $errorList->setAccount($account);

@@ -2,7 +2,7 @@
 
 namespace WechatMiniProgramLogBundle\Tests\Entity;
 
-use DateTime;
+use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 use WechatMiniProgramBundle\Entity\Account;
 use WechatMiniProgramLogBundle\Entity\ErrorDetail;
@@ -115,22 +115,22 @@ class ErrorDetailTest extends TestCase
     public function testGettersAndSetters_DateTimeProperties(): void
     {
         // 测试Date属性
-        $date = new DateTime('2023-01-01');
+        $date = new DateTimeImmutable('2023-01-01');
         $this->errorDetail->setDate($date);
         $this->assertSame($date, $this->errorDetail->getDate());
         
         // 测试TimeStamp属性
-        $timeStamp = new DateTime('2023-01-01 12:00:00');
+        $timeStamp = new DateTimeImmutable('2023-01-01 12:00:00');
         $this->errorDetail->setTimeStamp($timeStamp);
         $this->assertSame($timeStamp, $this->errorDetail->getTimeStamp());
         
         // 测试CreateTime属性
-        $createTime = new DateTime('2023-01-01 10:00:00');
+        $createTime = new DateTimeImmutable('2023-01-01 10:00:00');
         $this->errorDetail->setCreateTime($createTime);
         $this->assertSame($createTime, $this->errorDetail->getCreateTime());
         
         // 测试UpdateTime属性
-        $updateTime = new DateTime('2023-01-01 11:00:00');
+        $updateTime = new DateTimeImmutable('2023-01-01 11:00:00');
         $this->errorDetail->setUpdateTime($updateTime);
         $this->assertSame($updateTime, $this->errorDetail->getUpdateTime());
     }
@@ -177,6 +177,7 @@ class ErrorDetailTest extends TestCase
     public function testSetInvalidValues_ShouldThrowTypeError(): void
     {
         $this->expectException(\TypeError::class);
+        /** @phpstan-ignore-next-line */
         $this->errorDetail->setDate('not-a-date');
     }
 } 

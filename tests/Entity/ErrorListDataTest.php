@@ -2,7 +2,7 @@
 
 namespace WechatMiniProgramLogBundle\Tests\Entity;
 
-use DateTime;
+use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 use WechatMiniProgramBundle\Entity\Account;
 use WechatMiniProgramLogBundle\Entity\ErrorListData;
@@ -37,12 +37,12 @@ class ErrorListDataTest extends TestCase
         $this->assertSame($errorMsg, $this->errorListData->getErrorMsg());
         
         // 测试Uv属性
-        $uv = '100';
+        $uv = 100;
         $this->errorListData->setUv($uv);
         $this->assertSame(100, $this->errorListData->getUv());
         
         // 测试Pv属性
-        $pv = '200';
+        $pv = 200;
         $this->errorListData->setPv($pv);
         $this->assertSame(200, $this->errorListData->getPv());
         
@@ -70,17 +70,17 @@ class ErrorListDataTest extends TestCase
     public function testGettersAndSetters_DateTimeProperties(): void
     {
         // 测试Date属性
-        $date = new DateTime('2023-01-01');
+        $date = new DateTimeImmutable('2023-01-01');
         $this->errorListData->setDate($date);
         $this->assertSame($date, $this->errorListData->getDate());
         
         // 测试CreateTime属性
-        $createTime = new DateTime('2023-01-01 10:00:00');
+        $createTime = new DateTimeImmutable('2023-01-01 10:00:00');
         $this->errorListData->setCreateTime($createTime);
         $this->assertSame($createTime, $this->errorListData->getCreateTime());
         
         // 测试UpdateTime属性
-        $updateTime = new DateTime('2023-01-01 11:00:00');
+        $updateTime = new DateTimeImmutable('2023-01-01 11:00:00');
         $this->errorListData->setUpdateTime($updateTime);
         $this->assertSame($updateTime, $this->errorListData->getUpdateTime());
     }
@@ -117,6 +117,7 @@ class ErrorListDataTest extends TestCase
     public function testSetInvalidValues_ShouldThrowTypeError(): void
     {
         $this->expectException(\TypeError::class);
+        /** @phpstan-ignore-next-line */
         $this->errorListData->setDate('not-a-date');
     }
 } 

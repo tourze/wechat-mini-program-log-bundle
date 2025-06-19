@@ -2,7 +2,7 @@
 
 namespace WechatMiniProgramLogBundle\Tests\Entity;
 
-use DateTime;
+use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 use WechatMiniProgramLogBundle\Entity\PenaltyList;
 use WechatMiniProgramLogBundle\Enum\PenaltyStatus;
@@ -66,17 +66,17 @@ class PenaltyListTest extends TestCase
     public function testGettersAndSetters_DateTimeProperties(): void
     {
         // 测试违规时间属性
-        $illegalTime = new DateTime('2023-01-01 12:00:00');
+        $illegalTime = new DateTimeImmutable('2023-01-01 12:00:00');
         $this->penaltyList->setIllegalTime($illegalTime);
         $this->assertSame($illegalTime, $this->penaltyList->getIllegalTime());
         
         // 测试创建时间属性
-        $createTime = new DateTime('2023-01-01 13:00:00');
+        $createTime = new DateTimeImmutable('2023-01-01 13:00:00');
         $this->penaltyList->setCreateTime($createTime);
         $this->assertSame($createTime, $this->penaltyList->getCreateTime());
         
         // 测试更新时间属性
-        $updateTime = new DateTime('2023-01-01 14:00:00');
+        $updateTime = new DateTimeImmutable('2023-01-01 14:00:00');
         $this->penaltyList->setUpdateTime($updateTime);
         $this->assertSame($updateTime, $this->penaltyList->getUpdateTime());
     }
@@ -115,6 +115,7 @@ class PenaltyListTest extends TestCase
     public function testSetInvalidValues_ShouldThrowTypeError(): void
     {
         $this->expectException(\TypeError::class);
+        /** @phpstan-ignore-next-line */
         $this->penaltyList->setIllegalTime('not-a-date');
     }
 } 

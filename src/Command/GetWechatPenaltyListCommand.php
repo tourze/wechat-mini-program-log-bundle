@@ -2,7 +2,7 @@
 
 namespace WechatMiniProgramLogBundle\Command;
 
-use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -19,7 +19,7 @@ use WechatMiniProgramLogBundle\Request\GetWechatPenaltyListRequest;
 
 #[AsCronTask('40 1 * * *')]
 #[AsCronTask('45 13 * * *')]
-#[AsCommand(name: 'wechat-mini-program:get-penalty', description: '获取小程序交易体验分违规记录')]
+#[AsCommand(name: self::NAME, description: '获取小程序交易体验分违规记录')]
 class GetWechatPenaltyListCommand extends Command
 {
     
@@ -36,7 +36,7 @@ public function __construct(
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         foreach ($this->accountRepository->findBy(['valid' => true]) as $account) {
-            $start = Carbon::now()->getTimestamp();
+            $start = CarbonImmutable::now()->getTimestamp();
             $this->request($account, 0, 20);
             $output->writeln($account->getId() . ' wechat-mini-program:check-performance command end, use time:' . time() - $start);
         }
@@ -63,7 +63,7 @@ public function __construct(
                 $penalty->setComplaintOrderId($item['complaintOrderId']);
                 $penalty->setIllegalWording($item['illegalWording']);
                 $penalty->setMinusScore($item['minusScore']);
-                $penalty->setIllegalTime(Carbon::parse($item['illegalTime']));
+                $penalty->setIllegalTime(CarbonImmutable::parse($item['illegalTime']));
                 $penalty->setOrderId($item['orderId']);
                 $penalty->setCurrentScore($response['currentScore']);
                 $penalty->setRawData(json_encode($item));
@@ -78,7 +78,7 @@ public function __construct(
             $this->entityManager->flush();
         }
 
-        if ((bool) ($offset + 1) * $limit < $response['totalNum']) {
+        if (($offset + 1) * $limit < $response['totalNum']) {
             ++$offset;
             $this->request($account, $offset, $limit);
         }

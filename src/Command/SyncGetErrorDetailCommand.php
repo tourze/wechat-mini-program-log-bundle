@@ -2,7 +2,7 @@
 
 namespace WechatMiniProgramLogBundle\Command;
 
-use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -23,11 +23,11 @@ use WechatMiniProgramLogBundle\Request\GetErrorDetailRequest;
  */
 #[AsCronTask('2 4 * * *')]
 #[AsCronTask('22 8 * * *')]
-#[AsCommand(name: 'wechat:official-account:SyncGetErrorDetailCommand', description: '运维中心-查询js错误详情')]
+#[AsCommand(name: self::NAME, description: '运维中心-查询js错误详情')]
 class SyncGetErrorDetailCommand extends Command
 {
     
-    public const NAME = 'wechat:official-account:SyncGetErrorDetailCommand';
+    public const NAME = 'wechat-mini-program:sync-get-error-detail';
 public function __construct(
         private readonly AccountRepository $accountRepository,
         private readonly Client $client,
@@ -42,11 +42,11 @@ public function __construct(
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         foreach ($this->accountRepository->findBy(['valid' => true]) as $account) {
-            foreach ($this->errorDetailDataRepository->findBy(['account' => $account, 'date' => Carbon::now()->subDays(2)]) as $item) {
+            foreach ($this->errorDetailDataRepository->findBy(['account' => $account, 'date' => CarbonImmutable::now()->subDays(2)]) as $item) {
                 $request = new GetErrorDetailRequest();
                 $request->setAccount($account);
-                $request->setStartTime(Carbon::now()->subDays(2));
-                $request->setEndTime(Carbon::now()->subDay());
+                $request->setStartTime(CarbonImmutable::now()->subDays(2));
+                $request->setEndTime(CarbonImmutable::now()->subDay());
                 $request->setErrorStackCode($item->getErrorStackCode());
                 $request->setErrorMsgCode($item->getErrorMsgCode());
                 $request->setAppVersion('0');
@@ -62,15 +62,15 @@ public function __construct(
                 foreach ($response['data'] as $value) {
                     $errorDetail = $this->errorDetailRepository->findOneBy([
                         'account' => $account,
-                        'date' => Carbon::now()->subDays(2),
+                        'date' => CarbonImmutable::now()->subDays(2),
                         'open_id' => $response['openid'],
                         'error_msg_code' => $value['errorMsgMd5'],
                     ]);
-                    if (!$errorDetail) {
+                    if ($errorDetail === null) {
                         $errorDetail = new ErrorDetail();
                         $errorDetail->setOpenId($response['openid']);
                         $errorDetail->setAccount($account);
-                        $errorDetail->setDate(Carbon::now()->subDays(2));
+                        $errorDetail->setDate(CarbonImmutable::now()->subDays(2));
                         $errorDetail->setErrorMsgCode($value['errorMsgMd5']);
                     }
                     $errorDetail->setCount($value['Count']);
