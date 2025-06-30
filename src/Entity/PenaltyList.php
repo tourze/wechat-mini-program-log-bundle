@@ -5,7 +5,7 @@ namespace WechatMiniProgramLogBundle\Entity;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Stringable;
-use Tourze\DoctrineSnowflakeBundle\Service\SnowflakeIdGenerator;
+use Tourze\DoctrineSnowflakeBundle\Traits\SnowflakeKeyAware;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use WechatMiniProgramLogBundle\Enum\PenaltyStatus;
 use WechatMiniProgramLogBundle\Repository\PenaltyListRepository;
@@ -17,12 +17,8 @@ use WechatMiniProgramLogBundle\Repository\PenaltyListRepository;
 #[ORM\Table(name: 'wechat_penalty_list', options: ['comment' => '小程序交易体验分违规记录'])]
 class PenaltyList implements Stringable
 {
+    use SnowflakeKeyAware;
     use TimestampableAware;
-    #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(SnowflakeIdGenerator::class)]
-    #[ORM\Column(type: Types::BIGINT, nullable: false, options: ['comment' => 'ID'])]
-    private ?string $id = null;
 
     private ?string $illegalOrderId = null;
 
@@ -43,10 +39,6 @@ class PenaltyList implements Stringable
     #[ORM\Column(type: Types::TEXT, nullable: true, options: ['comment' => '原始数据'])]
     private ?string $rawData = null;
 
-    public function getId(): ?string
-    {
-        return $this->id;
-    }
 
     public function getIllegalOrderId(): ?string
     {

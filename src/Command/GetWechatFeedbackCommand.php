@@ -17,7 +17,7 @@ use WechatMiniProgramLogBundle\Enum\FeedbackType;
 use WechatMiniProgramLogBundle\Repository\FeedbackRepository;
 use WechatMiniProgramLogBundle\Request\GetWechatFeedbackRequest;
 
-#[AsCronTask('15 * * * *')]
+#[AsCronTask(expression: '15 * * * *')]
 #[AsCommand(name: self::NAME, description: '定期获取小程序反馈信息')]
 class GetWechatFeedbackCommand extends Command
 {

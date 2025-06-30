@@ -5,7 +5,7 @@ namespace WechatMiniProgramLogBundle\Entity;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Stringable;
-use Tourze\DoctrineSnowflakeBundle\Service\SnowflakeIdGenerator;
+use Tourze\DoctrineSnowflakeBundle\Traits\SnowflakeKeyAware;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use WechatMiniProgramBundle\Entity\Account;
 use WechatMiniProgramLogBundle\Enum\FeedbackType;
@@ -15,12 +15,8 @@ use WechatMiniProgramLogBundle\Repository\FeedbackRepository;
 #[ORM\Table(name: 'wechat_mini_program_feedback', options: ['comment' => '微信小程序-反馈记录'])]
 class Feedback implements Stringable
 {
+    use SnowflakeKeyAware;
     use TimestampableAware;
-    #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(SnowflakeIdGenerator::class)]
-    #[ORM\Column(type: Types::BIGINT, nullable: false, options: ['comment' => 'ID'])]
-    private ?string $id = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
@@ -52,10 +48,6 @@ class Feedback implements Stringable
     #[ORM\Column(type: Types::TEXT, nullable: true, options: ['comment' => '原始数据'])]
     private ?string $rawData = null;
 
-    public function getId(): ?string
-    {
-        return $this->id;
-    }
 
     public function getWxRecordId(): ?string
     {

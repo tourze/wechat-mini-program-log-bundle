@@ -17,8 +17,8 @@ use WechatMiniProgramLogBundle\Enum\PenaltyStatus;
 use WechatMiniProgramLogBundle\Repository\PenaltyListRepository;
 use WechatMiniProgramLogBundle\Request\GetWechatPenaltyListRequest;
 
-#[AsCronTask('40 1 * * *')]
-#[AsCronTask('45 13 * * *')]
+#[AsCronTask(expression: '40 1 * * *')]
+#[AsCronTask(expression: '45 13 * * *')]
 #[AsCommand(name: self::NAME, description: '获取小程序交易体验分违规记录')]
 class GetWechatPenaltyListCommand extends Command
 {
@@ -51,7 +51,6 @@ public function __construct(
         $request->setLimit($limit);
         $request->setOffset($offset);
         $response = $this->client->request($request);
-        var_dump("offset: $offset, limit: $limit");
 
         foreach ($response['appealList'] as $item) {
             $penalty = $this->penaltyListRepository->findOneBy([

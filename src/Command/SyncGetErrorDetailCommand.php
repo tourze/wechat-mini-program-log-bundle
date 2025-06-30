@@ -21,8 +21,8 @@ use WechatMiniProgramLogBundle\Request\GetErrorDetailRequest;
  *
  * @see https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/operation/getJsErrList.html
  */
-#[AsCronTask('2 4 * * *')]
-#[AsCronTask('22 8 * * *')]
+#[AsCronTask(expression: '2 4 * * *')]
+#[AsCronTask(expression: '22 8 * * *')]
 #[AsCommand(name: self::NAME, description: '运维中心-查询js错误详情')]
 class SyncGetErrorDetailCommand extends Command
 {

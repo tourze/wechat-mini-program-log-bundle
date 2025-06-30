@@ -20,8 +20,8 @@ use WechatMiniProgramLogBundle\Request\GetErrorListRequest;
  *
  * @see https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/operation/getJsErrList.html
  */
-#[AsCronTask('6 3 * * *')]
-#[AsCronTask('35 11 * * *')]
+#[AsCronTask(expression: '6 3 * * *')]
+#[AsCronTask(expression: '35 11 * * *')]
 #[AsCommand(name: self::NAME, description: '运维中心-查询错误列表')]
 class SyncGetErrorListCommand extends Command
 {
