@@ -4,7 +4,7 @@ namespace WechatMiniProgramLogBundle\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Stringable;
+use Symfony\Component\Validator\Constraints as Assert;
 use Tourze\DoctrineSnowflakeBundle\Traits\SnowflakeKeyAware;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use WechatMiniProgramLogBundle\Enum\PenaltyStatus;
@@ -15,41 +15,58 @@ use WechatMiniProgramLogBundle\Repository\PenaltyListRepository;
  */
 #[ORM\Entity(repositoryClass: PenaltyListRepository::class)]
 #[ORM\Table(name: 'wechat_penalty_list', options: ['comment' => '小程序交易体验分违规记录'])]
-class PenaltyList implements Stringable
+class PenaltyList implements \Stringable
 {
     use SnowflakeKeyAware;
     use TimestampableAware;
 
+    #[ORM\Column(length: 100, nullable: true, options: ['comment' => '违规订单ID'])]
+    #[Assert\Length(max: 100, maxMessage: '违规订单ID长度不能超过{{ limit }}个字符')]
     private ?string $illegalOrderId = null;
 
+    #[ORM\Column(length: 100, nullable: true, options: ['comment' => '投诉订单ID'])]
+    #[Assert\Length(max: 100, maxMessage: '投诉订单ID长度不能超过{{ limit }}个字符')]
     private ?string $complaintOrderId = null;
 
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true, options: ['comment' => '违规时间'])]
+    #[Assert\Type(type: \DateTimeInterface::class, message: '违规时间格式无效')]
     private ?\DateTimeInterface $illegalTime = null;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true, options: ['comment' => '违规措辞'])]
+    #[Assert\Length(max: 65535, maxMessage: '违规措辞长度不能超过{{ limit }}个字符')]
     private ?string $illegalWording = null;
 
+    #[ORM\Column(length: 20, enumType: PenaltyStatus::class, nullable: true, options: ['comment' => '处罚状态'])]
+    #[Assert\Type(type: PenaltyStatus::class, message: '处罚状态类型无效')]
+    #[Assert\Choice(callback: [PenaltyStatus::class, 'cases'], message: '处罚状态选择无效')]
     private ?PenaltyStatus $penaltyStatus = null;
 
+    #[ORM\Column(type: Types::INTEGER, nullable: true, options: ['comment' => '扣分'])]
+    #[Assert\Type(type: 'integer', message: '扣分必须是整数')]
+    #[Assert\PositiveOrZero(message: '扣分不能为负数')]
     private ?int $minusScore = null;
 
+    #[ORM\Column(length: 100, nullable: true, options: ['comment' => '订单ID'])]
+    #[Assert\Length(max: 100, maxMessage: '订单ID长度不能超过{{ limit }}个字符')]
     private ?string $orderId = null;
 
+    #[ORM\Column(type: Types::INTEGER, nullable: true, options: ['comment' => '当前分数'])]
+    #[Assert\Type(type: 'integer', message: '当前分数必须是整数')]
+    #[Assert\PositiveOrZero(message: '当前分数不能为负数')]
     private ?int $currentScore = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true, options: ['comment' => '原始数据'])]
+    #[Assert\Length(max: 65535, maxMessage: '原始数据长度不能超过{{ limit }}个字符')]
     private ?string $rawData = null;
-
 
     public function getIllegalOrderId(): ?string
     {
         return $this->illegalOrderId;
     }
 
-    public function setIllegalOrderId(string $illegalOrderId): static
+    public function setIllegalOrderId(?string $illegalOrderId): void
     {
         $this->illegalOrderId = $illegalOrderId;
-
-        return $this;
     }
 
     public function getIllegalTime(): ?\DateTimeInterface
@@ -57,11 +74,9 @@ class PenaltyList implements Stringable
         return $this->illegalTime;
     }
 
-    public function setIllegalTime(\DateTimeInterface $illegalTime): static
+    public function setIllegalTime(?\DateTimeInterface $illegalTime): void
     {
         $this->illegalTime = $illegalTime;
-
-        return $this;
     }
 
     public function getIllegalWording(): ?string
@@ -69,11 +84,9 @@ class PenaltyList implements Stringable
         return $this->illegalWording;
     }
 
-    public function setIllegalWording(string $illegalWording): static
+    public function setIllegalWording(?string $illegalWording): void
     {
         $this->illegalWording = $illegalWording;
-
-        return $this;
     }
 
     public function getPenaltyStatus(): ?PenaltyStatus
@@ -81,11 +94,9 @@ class PenaltyList implements Stringable
         return $this->penaltyStatus;
     }
 
-    public function setPenaltyStatus(PenaltyStatus $penaltyStatus): static
+    public function setPenaltyStatus(?PenaltyStatus $penaltyStatus): void
     {
         $this->penaltyStatus = $penaltyStatus;
-
-        return $this;
     }
 
     public function getComplaintOrderId(): ?string
@@ -93,11 +104,9 @@ class PenaltyList implements Stringable
         return $this->complaintOrderId;
     }
 
-    public function setComplaintOrderId(string $complaintOrderId): static
+    public function setComplaintOrderId(?string $complaintOrderId): void
     {
         $this->complaintOrderId = $complaintOrderId;
-
-        return $this;
     }
 
     public function getMinusScore(): ?int
@@ -105,11 +114,9 @@ class PenaltyList implements Stringable
         return $this->minusScore;
     }
 
-    public function setMinusScore(int $minusScore): static
+    public function setMinusScore(?int $minusScore): void
     {
         $this->minusScore = $minusScore;
-
-        return $this;
     }
 
     public function getOrderId(): ?string
@@ -117,11 +124,9 @@ class PenaltyList implements Stringable
         return $this->orderId;
     }
 
-    public function setOrderId(?string $orderId): static
+    public function setOrderId(?string $orderId): void
     {
         $this->orderId = $orderId;
-
-        return $this;
     }
 
     public function getCurrentScore(): ?int
@@ -129,11 +134,9 @@ class PenaltyList implements Stringable
         return $this->currentScore;
     }
 
-    public function setCurrentScore(?int $currentScore): static
+    public function setCurrentScore(?int $currentScore): void
     {
         $this->currentScore = $currentScore;
-
-        return $this;
     }
 
     public function getRawData(): ?string
@@ -145,6 +148,7 @@ class PenaltyList implements Stringable
     {
         $this->rawData = $rawData;
     }
+
     public function __toString(): string
     {
         return (string) $this->id;

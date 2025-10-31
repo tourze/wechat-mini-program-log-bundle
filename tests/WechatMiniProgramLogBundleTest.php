@@ -1,23 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WechatMiniProgramLogBundle\Tests;
 
-use PHPUnit\Framework\TestCase;
-use WechatMiniProgramLogBundle\DependencyInjection\WechatMiniProgramLogExtension;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+use Tourze\PHPUnitSymfonyKernelTest\AbstractBundleTestCase;
 use WechatMiniProgramLogBundle\WechatMiniProgramLogBundle;
 
-class WechatMiniProgramLogBundleTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(WechatMiniProgramLogBundle::class)]
+#[RunTestsInSeparateProcesses]
+final class WechatMiniProgramLogBundleTest extends AbstractBundleTestCase
 {
-    private WechatMiniProgramLogBundle $bundle;
-
-    protected function setUp(): void
-    {
-        $this->bundle = new WechatMiniProgramLogBundle();
-    }
-
-    public function testGetContainerExtension_ShouldReturnExtension(): void
-    {
-        $extension = $this->bundle->getContainerExtension();
-        $this->assertInstanceOf(WechatMiniProgramLogExtension::class, $extension);
-    }
-} 
+}

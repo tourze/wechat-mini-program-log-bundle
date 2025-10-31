@@ -2,22 +2,35 @@
 
 namespace WechatMiniProgramLogBundle\Tests\Request;
 
-use PHPUnit\Framework\TestCase;
-use WechatMiniProgramLogBundle\Request\GetErrorListRequest;
-use WechatMiniProgramBundle\Entity\Account;
 use Carbon\CarbonImmutable;
+use PHPUnit\Framework\Attributes\CoversClass;
+use HttpClientBundle\Tests\Request\RequestTestCase;
+use WechatMiniProgramBundle\Entity\Account;
+use WechatMiniProgramLogBundle\Request\GetErrorListRequest;
 
-class GetErrorListRequestTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(GetErrorListRequest::class)]
+final class GetErrorListRequestTest extends RequestTestCase
 {
     private GetErrorListRequest $request;
 
     protected function setUp(): void
     {
+        parent::setUp();
+
         $this->request = new GetErrorListRequest();
     }
 
     public function testAccount(): void
     {
+        /*
+         * 使用具体类 Account 进行 Mock，因为：
+         * 1) Account是业务实体，没有对应的接口
+         * 2) 在测试中需要模拟实体的属性和方法
+         * 3) 这是Entity测试的标准做法
+         */
         $account = $this->createMock(Account::class);
         $this->request->setAccount($account);
         $this->assertSame($account, $this->request->getAccount());
@@ -103,14 +116,17 @@ class GetErrorListRequestTest extends TestCase
         $this->request->setDesc('2');
         $this->request->setOffset(0);
         $this->request->setLimit(30);
-        
+
         $options = $this->request->getRequestOptions();
-        
-        $this->assertIsArray($options);
+
+        self::assertNotNull($options);
         $this->assertArrayHasKey('json', $options);
-        $this->assertArrayHasKey('errType', $options['json']);
-        $this->assertArrayHasKey('orderby', $options['json']);
-        $this->assertSame('1', $options['json']['errType']);
-        $this->assertSame('uv', $options['json']['orderby']);
+
+        $jsonOptions = $options['json'];
+        self::assertIsArray($jsonOptions);
+        $this->assertArrayHasKey('errType', $jsonOptions);
+        $this->assertArrayHasKey('orderby', $jsonOptions);
+        $this->assertSame('1', $jsonOptions['errType']);
+        $this->assertSame('uv', $jsonOptions['orderby']);
     }
 }

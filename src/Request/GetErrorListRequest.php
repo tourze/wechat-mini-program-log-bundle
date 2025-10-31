@@ -37,6 +37,9 @@ class GetErrorListRequest extends WithAccountRequest
         return '/wxaapi/log/jserr_list';
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getRequestOptions(): ?array
     {
         $json = [

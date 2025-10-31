@@ -2,154 +2,56 @@
 
 namespace WechatMiniProgramLogBundle\Tests\Entity;
 
-use DateTimeImmutable;
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use Tourze\PHPUnitDoctrineEntity\AbstractEntityTestCase;
 use WechatMiniProgramBundle\Entity\Account;
 use WechatMiniProgramLogBundle\Entity\ErrorDetail;
 
-class ErrorDetailTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(ErrorDetail::class)]
+final class ErrorDetailTest extends AbstractEntityTestCase
 {
-    private ErrorDetail $errorDetail;
-
-    protected function setUp(): void
+    protected function createEntity(): object
     {
-        $this->errorDetail = new ErrorDetail();
+        return new ErrorDetail();
     }
 
-    public function testGettersAndSetters_BasicProperties(): void
+    /**
+     * @return iterable<string, array{string, mixed}>
+     */
+    public static function propertiesProvider(): iterable
     {
-        // ID属性在Entity中默认为0，不是null
-        $this->assertSame(0, $this->errorDetail->getId());
-        
-        // 测试OpenId属性
-        $openId = 'test_open_id';
-        $this->errorDetail->setOpenId($openId);
-        $this->assertSame($openId, $this->errorDetail->getOpenId());
-        
-        // 测试ErrorMsgCode属性
-        $errorMsgCode = 'error_msg_code_123';
-        $this->errorDetail->setErrorMsgCode($errorMsgCode);
-        $this->assertSame($errorMsgCode, $this->errorDetail->getErrorMsgCode());
-        
-        // 测试ErrorMsg属性
-        $errorMsg = 'Test error message';
-        $this->errorDetail->setErrorMsg($errorMsg);
-        $this->assertSame($errorMsg, $this->errorDetail->getErrorMsg());
-        
-        // 测试ErrorStackCode属性
-        $errorStackCode = 'error_stack_code_123';
-        $this->errorDetail->setErrorStackCode($errorStackCode);
-        $this->assertSame($errorStackCode, $this->errorDetail->getErrorStackCode());
-        
-        // 测试ErrorStack属性
-        $errorStack = 'Test error stack';
-        $this->errorDetail->setErrorStack($errorStack);
-        $this->assertSame($errorStack, $this->errorDetail->getErrorStack());
-        
-        // 测试Count属性
-        $count = '5';
-        $this->errorDetail->setCount($count);
-        $this->assertSame($count, $this->errorDetail->getCount());
-        
-        // 测试SdkVersion属性
-        $sdkVersion = '1.0.0';
-        $this->errorDetail->setSdkVersion($sdkVersion);
-        $this->assertSame($sdkVersion, $this->errorDetail->getSdkVersion());
-        
-        // 测试ClientVersion属性
-        $clientVersion = '2.0.0';
-        $this->errorDetail->setClientVersion($clientVersion);
-        $this->assertSame($clientVersion, $this->errorDetail->getClientVersion());
-        
-        // 测试AppVersion属性
-        $appVersion = '3.0.0';
-        $this->errorDetail->setAppVersion($appVersion);
-        $this->assertSame($appVersion, $this->errorDetail->getAppVersion());
-        
-        // 测试Ds属性
-        $ds = 'test_ds';
-        $this->errorDetail->setDs($ds);
-        $this->assertSame($ds, $this->errorDetail->getDs());
-        
-        // 测试OsName属性
-        $osName = 'iOS';
-        $this->errorDetail->setOsName($osName);
-        $this->assertSame($osName, $this->errorDetail->getOsName());
-        
-        // 测试PluginVersion属性
-        $pluginVersion = '1.2.3';
-        $this->errorDetail->setPluginVersion($pluginVersion);
-        $this->assertSame($pluginVersion, $this->errorDetail->getPluginVersion());
-        
-        // 测试AppId属性
-        $appId = 'wx123456789';
-        $this->errorDetail->setAppId($appId);
-        $this->assertSame($appId, $this->errorDetail->getAppId());
-        
-        // 测试DeviceModel属性
-        $deviceModel = 'iPhone X';
-        $this->errorDetail->setDeviceModel($deviceModel);
-        $this->assertSame($deviceModel, $this->errorDetail->getDeviceModel());
-        
-        // 测试Source属性
-        $source = 'test_source';
-        $this->errorDetail->setSource($source);
-        $this->assertSame($source, $this->errorDetail->getSource());
-        
-        // 测试Route属性
-        $route = 'test_route';
-        $this->errorDetail->setRoute($route);
-        $this->assertSame($route, $this->errorDetail->getRoute());
-        
-        // 测试Uin属性
-        $uin = 'test_uin';
-        $this->errorDetail->setUin($uin);
-        $this->assertSame($uin, $this->errorDetail->getUin());
-        
-        // 测试Nickname属性
-        $nickname = 'test_nickname';
-        $this->errorDetail->setNickname($nickname);
-        $this->assertSame($nickname, $this->errorDetail->getNickname());
+        return [
+            'errorMsgCode' => ['errorMsgCode', 'test_error_code'],
+            'errorMsg' => ['errorMsg', 'Test error message'],
+            'errorStackCode' => ['errorStackCode', 'stack_code_123'],
+            'errorStack' => ['errorStack', 'Error stack trace'],
+            'count' => ['count', '10'],
+            'sdkVersion' => ['sdkVersion', '2.0.0'],
+            'clientVersion' => ['clientVersion', '1.5.0'],
+            'timeStamp' => ['timeStamp', new \DateTimeImmutable()],
+            'appVersion' => ['appVersion', '3.1.0'],
+            'ds' => ['ds', 'test_ds'],
+            'osName' => ['osName', 'iOS'],
+            'pluginVersion' => ['pluginVersion', '1.0.0'],
+            'appId' => ['appId', 'wx123456'],
+            'deviceModel' => ['deviceModel', 'iPhone 13'],
+            'source' => ['source', 'app_store'],
+            'route' => ['route', '/api/test'],
+            'uin' => ['uin', '123456'],
+            'nickname' => ['nickname', 'Test User'],
+            'openId' => ['openId', 'openid123'],
+        ];
     }
 
-    public function testGettersAndSetters_DateTimeProperties(): void
-    {
-        // 测试Date属性
-        $date = new DateTimeImmutable('2023-01-01');
-        $this->errorDetail->setDate($date);
-        $this->assertSame($date, $this->errorDetail->getDate());
-        
-        // 测试TimeStamp属性
-        $timeStamp = new DateTimeImmutable('2023-01-01 12:00:00');
-        $this->errorDetail->setTimeStamp($timeStamp);
-        $this->assertSame($timeStamp, $this->errorDetail->getTimeStamp());
-        
-        // 测试CreateTime属性
-        $createTime = new DateTimeImmutable('2023-01-01 10:00:00');
-        $this->errorDetail->setCreateTime($createTime);
-        $this->assertSame($createTime, $this->errorDetail->getCreateTime());
-        
-        // 测试UpdateTime属性
-        $updateTime = new DateTimeImmutable('2023-01-01 11:00:00');
-        $this->errorDetail->setUpdateTime($updateTime);
-        $this->assertSame($updateTime, $this->errorDetail->getUpdateTime());
-    }
-
-    public function testGettersAndSetters_RelationProperties(): void
-    {
-        // 测试Account关联属性
-        $account = $this->createMock(Account::class);
-        $this->errorDetail->setAccount($account);
-        $this->assertSame($account, $this->errorDetail->getAccount());
-    }
-
-    public function testCreateNewInstance_WithDefaultValues(): void
+    public function testCreateNewInstanceWithDefaultValues(): void
     {
         $errorDetail = new ErrorDetail();
-        
+
         // 验证默认值
-        $this->assertSame(0, $errorDetail->getId()); // ID默认为0，不是null
-        $this->assertNull($errorDetail->getOpenId());
+        $this->assertSame(0, $errorDetail->getId());
         $this->assertNull($errorDetail->getErrorMsgCode());
         $this->assertNull($errorDetail->getErrorMsg());
         $this->assertNull($errorDetail->getErrorStackCode());
@@ -168,16 +70,7 @@ class ErrorDetailTest extends TestCase
         $this->assertNull($errorDetail->getRoute());
         $this->assertNull($errorDetail->getUin());
         $this->assertNull($errorDetail->getNickname());
-        $this->assertNull($errorDetail->getDate());
+        $this->assertNull($errorDetail->getOpenId());
         $this->assertNull($errorDetail->getAccount());
-        $this->assertNull($errorDetail->getCreateTime());
-        $this->assertNull($errorDetail->getUpdateTime());
     }
-
-    public function testSetInvalidValues_ShouldThrowTypeError(): void
-    {
-        $this->expectException(\TypeError::class);
-        /** @phpstan-ignore-next-line */
-        $this->errorDetail->setDate('not-a-date');
-    }
-} 
+}

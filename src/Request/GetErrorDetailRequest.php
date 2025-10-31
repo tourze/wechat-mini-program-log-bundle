@@ -41,6 +41,9 @@ class GetErrorDetailRequest extends WithAccountRequest
         return '/wxaapi/log/jserr_detail';
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getRequestOptions(): ?array
     {
         $json = [

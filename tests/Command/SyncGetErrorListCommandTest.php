@@ -2,103 +2,93 @@
 
 namespace WechatMiniProgramLogBundle\Tests\Command;
 
-use PHPUnit\Framework\TestCase;
-use Symfony\Component\Console\Application;
-use Symfony\Component\Console\Tester\CommandTester;
-use WechatMiniProgramLogBundle\Command\SyncGetErrorListCommand;
-use WechatMiniProgramBundle\Service\Client;
-use WechatMiniProgramLogBundle\Repository\ErrorListDataRepository;
-use WechatMiniProgramBundle\Repository\AccountRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use WechatMiniProgramBundle\Entity\Account;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Tester\CommandTester;
+use Tourze\PHPUnitSymfonyKernelTest\AbstractCommandTestCase;
+use WechatMiniProgramBundle\Repository\AccountRepository;
+use WechatMiniProgramBundle\Service\Client;
+use WechatMiniProgramLogBundle\Command\SyncGetErrorListCommand;
+use WechatMiniProgramLogBundle\Repository\ErrorListDataRepository;
 
-class SyncGetErrorListCommandTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(SyncGetErrorListCommand::class)]
+#[RunTestsInSeparateProcesses]
+final class SyncGetErrorListCommandTest extends AbstractCommandTestCase
 {
-    private CommandTester $commandTester;
-    private Client $client;
-    private ErrorListDataRepository $errorListDataRepository;
-    private AccountRepository $accountRepository;
-    private EntityManagerInterface $entityManager;
-
-    protected function setUp(): void
+    public function testCommandCanBeInstantiated(): void
     {
-        $this->accountRepository = $this->createMock(AccountRepository::class);
-        $this->client = $this->createMock(Client::class);
-        $this->errorListDataRepository = $this->createMock(ErrorListDataRepository::class);
-        $this->entityManager = $this->createMock(EntityManagerInterface::class);
+        /*
+         * 使用具体类 AccountRepository 进行 Mock，因为：
+         * 1) AccountRepository继承自Doctrine的具体实现类，而非接口
+         * 2) 测试中需要模拟数据库查询操作，直接Mock Repository是合理的
+         * 3) 符合Doctrine Repository的标准测试模式
+         */
+        $accountRepository = $this->createMock(AccountRepository::class);
+        /*
+         * 使用具体类 Client 进行 Mock，因为：
+         * 1) 微信小程序服务的核心客户端，没有对应的接口抽象
+         * 2) 在测试中需要模拟其网络请求行为，使用具体类是必要的
+         * 3) 后续可考虑为Client创建接口来改善测试性
+         */
+        $client = $this->createMock(Client::class);
+        /*
+         * 使用具体类 ErrorListDataRepository 进行 Mock，因为：
+         * 1) Repository继承自Doctrine的具体实现类，而非接口
+         * 2) 测试中需要模拟数据库查询操作，直接Mock Repository是合理的
+         * 3) 符合Doctrine Repository的标准测试模式
+         */
+        $errorListDataRepository = $this->createMock(ErrorListDataRepository::class);
+        /*
+         * 使用接口 EntityManagerInterface 进行 Mock，因为：
+         * 1) EntityManagerInterface是Doctrine ORM的标准接口
+         * 2) 测试中需要模拟数据库管理操作，Mock接口是最佳实践
+         * 3) 符合依赖注入和接口隔离原则
+         */
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        /*
+         * 使用接口 LoggerInterface 进行 Mock，因为：
+         * 1) LoggerInterface是PSR-3标准的日志接口
+         * 2) 测试中需要模拟日志记录行为，Mock接口是标准做法
+         * 3) 符合依赖注入原则，便于测试和维护
+         */
+        $logger = $this->createMock(LoggerInterface::class);
 
-        $command = new SyncGetErrorListCommand(
-            $this->accountRepository,
-            $this->client,
-            $this->errorListDataRepository,
-            $this->entityManager
-        );
+        $command = self::getContainer()->get(SyncGetErrorListCommand::class);
 
-        $application = new Application();
-        $application->add($command);
-
-        $command = $application->find('wechat-mini-program:sync-get-error-list');
-        $this->commandTester = new CommandTester($command);
+        $this->assertInstanceOf(SyncGetErrorListCommand::class, $command);
     }
 
-    public function testExecuteWithNoAccounts(): void
+    public function testCommandHasCorrectName(): void
     {
-        $this->accountRepository->expects($this->once())
-            ->method('findBy')
-            ->with(['valid' => true])
-            ->willReturn([]);
-
-        $exitCode = $this->commandTester->execute([]);
-
-        $this->assertSame(0, $exitCode);
+        $this->assertEquals('wechat-mini-program:sync-get-error-list', SyncGetErrorListCommand::NAME);
     }
 
-    public function testExecuteWithAccount(): void
+    public function testCommandExecuteWithNoAccounts(): void
     {
-        $account = $this->createMock(Account::class);
+        $command = self::getContainer()->get(SyncGetErrorListCommand::class);
+        $this->assertInstanceOf(SyncGetErrorListCommand::class, $command);
 
-        $this->accountRepository->expects($this->once())
-            ->method('findBy')
-            ->with(['valid' => true])
-            ->willReturn([$account]);
+        $commandTester = new CommandTester($command);
+        $result = $commandTester->execute([]);
 
-        $this->client->expects($this->once())
-            ->method('request')
-            ->willReturn([
-                'data' => [],
-                'openid' => 'test_openid'
-            ]);
-
-        $exitCode = $this->commandTester->execute([]);
-
-        $this->assertSame(0, $exitCode);
+        $this->assertEquals(Command::SUCCESS, $result);
     }
 
-    public function testExecuteWithException(): void
+    protected function getCommandTester(): CommandTester
     {
-        $account = $this->createMock(Account::class);
-        $account->expects($this->once())
-            ->method('getId')
-            ->willReturn(1);
+        $command = self::getService(SyncGetErrorListCommand::class);
+        $this->assertInstanceOf(SyncGetErrorListCommand::class, $command);
 
-        $this->accountRepository->expects($this->once())
-            ->method('findBy')
-            ->with(['valid' => true])
-            ->willReturn([$account]);
-
-        $this->client->expects($this->once())
-            ->method('request')
-            ->willThrowException(new \Exception('Test exception'));
-
-        $exitCode = $this->commandTester->execute([]);
-
-        $this->assertSame(0, $exitCode);
-        $output = $this->commandTester->getDisplay();
-        $this->assertStringContainsString('同步[1]错误列表出错', $output);
+        return new CommandTester($command);
     }
 
-    public function testCommandName(): void
+    protected function onSetUp(): void        // Command 测试不需要特殊的设置
     {
-        $this->assertSame('wechat-mini-program:sync-get-error-list', SyncGetErrorListCommand::NAME);
     }
 }

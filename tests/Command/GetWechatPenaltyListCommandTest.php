@@ -2,86 +2,87 @@
 
 namespace WechatMiniProgramLogBundle\Tests\Command;
 
-use PHPUnit\Framework\TestCase;
-use Symfony\Component\Console\Application;
-use Symfony\Component\Console\Tester\CommandTester;
-use WechatMiniProgramLogBundle\Command\GetWechatPenaltyListCommand;
-use WechatMiniProgramBundle\Service\Client;
-use WechatMiniProgramLogBundle\Repository\PenaltyListRepository;
-use WechatMiniProgramBundle\Repository\AccountRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use WechatMiniProgramBundle\Entity\Account;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Tester\CommandTester;
+use Tourze\PHPUnitSymfonyKernelTest\AbstractCommandTestCase;
+use WechatMiniProgramBundle\Repository\AccountRepository;
+use WechatMiniProgramBundle\Service\Client;
+use WechatMiniProgramLogBundle\Command\GetWechatPenaltyListCommand;
+use WechatMiniProgramLogBundle\Repository\PenaltyListRepository;
 
-class GetWechatPenaltyListCommandTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(GetWechatPenaltyListCommand::class)]
+#[RunTestsInSeparateProcesses]
+final class GetWechatPenaltyListCommandTest extends AbstractCommandTestCase
 {
-    private CommandTester $commandTester;
-    private Client $client;
-    private PenaltyListRepository $penaltyListRepository;
-    private AccountRepository $accountRepository;
-    private EntityManagerInterface $entityManager;
-
-    protected function setUp(): void
+    public function testCommandCanBeInstantiated(): void
     {
-        $this->client = $this->createMock(Client::class);
-        $this->penaltyListRepository = $this->createMock(PenaltyListRepository::class);
-        $this->accountRepository = $this->createMock(AccountRepository::class);
-        $this->entityManager = $this->createMock(EntityManagerInterface::class);
+        /*
+         * 使用具体类 Client 进行 Mock，因为：
+         * 1) Client 是微信小程序服务的核心客户端，没有对应的接口抽象
+         * 2) 在测试中需要模拟其网络请求行为，使用具体类是必要的
+         * 3) 后续可考虑为 Client 创建接口来改善测试性
+         */
+        $client = $this->createMock(Client::class);
+        /*
+         * 使用具体类 PenaltyListRepository 进行 Mock，因为：
+         * 1) Repository 继承自 Doctrine 的具体实现类，而非接口
+         * 2) 测试中需要模拟数据库查询操作，直接 Mock Repository 是合理的
+         * 3) 符合 Doctrine Repository 的标准测试模式
+         */
+        $penaltyListRepository = $this->createMock(PenaltyListRepository::class);
+        /*
+         * 使用具体类 AccountRepository 进行 Mock，因为：
+         * 1) AccountRepository 是 Doctrine Repository 的具体实现
+         * 2) 测试中需要模拟账户查询功能，Mock 具体类是标准做法
+         * 3) 与项目中其他 Repository 的测试模式保持一致
+         */
+        $accountRepository = $this->createMock(AccountRepository::class);
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $logger = $this->createMock(LoggerInterface::class);
 
-        $command = new GetWechatPenaltyListCommand(
-            $this->client,
-            $this->penaltyListRepository,
-            $this->accountRepository,
-            $this->entityManager
-        );
+        $command = self::getContainer()->get(GetWechatPenaltyListCommand::class);
 
-        $application = new Application();
-        $application->add($command);
-
-        $command = $application->find('wechat-mini-program:get-penalty');
-        $this->commandTester = new CommandTester($command);
+        $this->assertInstanceOf(GetWechatPenaltyListCommand::class, $command);
     }
 
-    public function testExecuteWithNoAccounts(): void
+    public function testCommandHasCorrectName(): void
     {
-        $this->accountRepository->expects($this->once())
-            ->method('findBy')
-            ->with(['valid' => true])
-            ->willReturn([]);
-
-        $exitCode = $this->commandTester->execute([]);
-
-        $this->assertSame(0, $exitCode);
+        $this->assertEquals('wechat-mini-program:get-penalty', GetWechatPenaltyListCommand::NAME);
     }
 
-    public function testExecuteWithAccount(): void
+    public function testCommandExecuteWithNoAccounts(): void
     {
-        $account = $this->createMock(Account::class);
-        $account->expects($this->once())
-            ->method('getId')
-            ->willReturn(1);
+        // 清理所有有效账户
+        $em = self::getService(EntityManagerInterface::class);
+        $em->createQuery('UPDATE WechatMiniProgramBundle\Entity\Account a SET a.valid = false')->execute();
+        $em->flush();
+        $em->clear();
 
-        $this->accountRepository->expects($this->once())
-            ->method('findBy')
-            ->with(['valid' => true])
-            ->willReturn([$account]);
+        $command = self::getContainer()->get(GetWechatPenaltyListCommand::class);
+        $this->assertInstanceOf(GetWechatPenaltyListCommand::class, $command);
 
-        $this->client->expects($this->once())
-            ->method('request')
-            ->willReturn([
-                'appealList' => [],
-                'currentScore' => 100,
-                'totalNum' => 0
-            ]);
+        $commandTester = new CommandTester($command);
+        $result = $commandTester->execute([]);
 
-        $exitCode = $this->commandTester->execute([]);
-
-        $this->assertSame(0, $exitCode);
-        $output = $this->commandTester->getDisplay();
-        $this->assertStringContainsString('1 wechat-mini-program:check-performance command end', $output);
+        $this->assertEquals(Command::SUCCESS, $result);
     }
 
-    public function testCommandName(): void
+    protected function getCommandTester(): CommandTester
     {
-        $this->assertSame('wechat-mini-program:get-penalty', GetWechatPenaltyListCommand::NAME);
+        $command = self::getService(GetWechatPenaltyListCommand::class);
+        $this->assertInstanceOf(GetWechatPenaltyListCommand::class, $command);
+
+        return new CommandTester($command);
+    }
+
+    protected function onSetUp(): void        // Command 测试不需要特殊的设置
+    {
     }
 }

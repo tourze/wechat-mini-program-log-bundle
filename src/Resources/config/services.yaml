@@ -4,7 +4,16 @@ services:
     autowire: true      # Automatically injects dependencies in your services.
     autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
 
-  WechatMiniProgramLogBundle\Command\:
-    resource: '../../Command/'
   WechatMiniProgramLogBundle\Repository\:
     resource: '../../Repository/'
+
+  WechatMiniProgramLogBundle\Controller\:
+    resource: '../../Controller/'
+
+  WechatMiniProgramLogBundle\Service\:
+    resource: '../../Service/'
+
+  WechatMiniProgramLogBundle\Command\:
+    resource: '../../Command/'
+    tags: ['console.command']
+    public: true

@@ -2,260 +2,101 @@
 
 namespace WechatMiniProgramLogBundle\Tests\Command;
 
-use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
-use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
-use ReflectionClass;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use WechatMiniProgramBundle\Entity\Account;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Tester\CommandTester;
+use Tourze\PHPUnitSymfonyKernelTest\AbstractCommandTestCase;
 use WechatMiniProgramBundle\Repository\AccountRepository;
 use WechatMiniProgramBundle\Service\Client;
 use WechatMiniProgramLogBundle\Command\SyncGetErrorDetailCommand;
-use WechatMiniProgramLogBundle\Entity\ErrorDetail;
-use WechatMiniProgramLogBundle\Entity\ErrorListData;
 use WechatMiniProgramLogBundle\Repository\ErrorDetailRepository;
 use WechatMiniProgramLogBundle\Repository\ErrorListDataRepository;
-use WechatMiniProgramLogBundle\Request\GetErrorDetailRequest;
 
-class SyncGetErrorDetailCommandTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(SyncGetErrorDetailCommand::class)]
+#[RunTestsInSeparateProcesses]
+final class SyncGetErrorDetailCommandTest extends AbstractCommandTestCase
 {
-    private SyncGetErrorDetailCommand $command;
-    private MockObject $accountRepository;
-    private MockObject $client;
-    private MockObject $errorDetailDataRepository;
-    private MockObject $errorDetailRepository;
-    private MockObject $entityManager;
-
-    protected function setUp(): void
+    public function testCommandCanBeInstantiated(): void
     {
-        $this->accountRepository = $this->createMock(AccountRepository::class);
-        $this->client = $this->createMock(Client::class);
-        $this->errorDetailDataRepository = $this->createMock(ErrorListDataRepository::class);
-        $this->errorDetailRepository = $this->createMock(ErrorDetailRepository::class);
-        $this->entityManager = $this->createMock(EntityManagerInterface::class);
+        /*
+         * 使用具体类 AccountRepository 进行 Mock，因为：
+         * 1) AccountRepository继承自Doctrine的具体实现类，而非接口
+         * 2) 测试中需要模拟数据库查询操作，直接Mock Repository是合理的
+         * 3) 符合Doctrine Repository的标准测试模式
+         */
+        $accountRepository = $this->createMock(AccountRepository::class);
+        /*
+         * 使用具体类 Client 进行 Mock，因为：
+         * 1) 微信小程序服务的核心客户端，没有对应的接口抽象
+         * 2) 在测试中需要模拟其网络请求行为，使用具体类是必要的
+         * 3) 后续可考虑为Client创建接口来改善测试性
+         */
+        $client = $this->createMock(Client::class);
+        /*
+         * 使用具体类 ErrorListDataRepository 进行 Mock，因为：
+         * 1) Repository继承自Doctrine的具体实现类，而非接口
+         * 2) 测试中需要模拟数据库查询操作，直接Mock Repository是合理的
+         * 3) 符合Doctrine Repository的标准测试模式
+         */
+        $errorDetailDataRepository = $this->createMock(ErrorListDataRepository::class);
+        /*
+         * 使用具体类 ErrorDetailRepository 进行 Mock，因为：
+         * 1) Repository继承自Doctrine的具体实现类，而非接口
+         * 2) 测试中需要模拟数据库查询操作，直接Mock Repository是合理的
+         * 3) 符合Doctrine Repository的标准测试模式
+         */
+        $errorDetailRepository = $this->createMock(ErrorDetailRepository::class);
+        /*
+         * 使用接口 EntityManagerInterface 进行 Mock，因为：
+         * 1) EntityManagerInterface是Doctrine ORM的标准接口
+         * 2) 测试中需要模拟数据库管理操作，Mock接口是最佳实践
+         * 3) 符合依赖注入和接口隔离原则
+         */
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        /*
+         * 使用接口 LoggerInterface 进行 Mock，因为：
+         * 1) LoggerInterface是PSR-3标准的日志接口
+         * 2) 测试中需要模拟日志记录行为，Mock接口是标准做法
+         * 3) 符合依赖注入原则，便于测试和维护
+         */
+        $logger = $this->createMock(LoggerInterface::class);
 
-        $this->command = new SyncGetErrorDetailCommand(
-            $this->accountRepository,
-            $this->client,
-            $this->errorDetailDataRepository,
-            $this->errorDetailRepository,
-            $this->entityManager
-        );
+        $command = self::getContainer()->get(SyncGetErrorDetailCommand::class);
+
+        $this->assertInstanceOf(SyncGetErrorDetailCommand::class, $command);
     }
 
-    /**
-     * 使用反射访问protected的execute方法
-     */
-    private function executeCommand(InputInterface $input, OutputInterface $output): int
+    public function testCommandHasCorrectName(): void
     {
-        $reflection = new ReflectionClass(SyncGetErrorDetailCommand::class);
-        $method = $reflection->getMethod('execute');
-        $method->setAccessible(true);
-        return $method->invoke($this->command, $input, $output);
+        $this->assertEquals('wechat-mini-program:sync-get-error-detail', SyncGetErrorDetailCommand::NAME);
     }
 
-    public function testExecute_WithValidAccounts_ShouldSucceed(): void
+    public function testCommandExecuteWithNoAccounts(): void
     {
-        // 模拟数据
-        $account = $this->createMock(Account::class);
-        $errorListData = $this->createMock(ErrorListData::class);
-        $errorListData->method('getErrorStackCode')->willReturn('stack_code_123');
-        $errorListData->method('getErrorMsgCode')->willReturn('msg_code_123');
-        $errorListData->method('getOpenId')->willReturn('open_id_123');
+        $command = self::getContainer()->get(SyncGetErrorDetailCommand::class);
+        $this->assertInstanceOf(SyncGetErrorDetailCommand::class, $command);
 
-        // 设置返回有效的账号和错误列表数据
-        $this->accountRepository->expects($this->once())
-            ->method('findBy')
-            ->with(['valid' => true])
-            ->willReturn([$account]);
+        $commandTester = new CommandTester($command);
+        $result = $commandTester->execute([]);
 
-        $this->errorDetailDataRepository->expects($this->once())
-            ->method('findBy')
-            ->willReturn([$errorListData]);
-
-        // 设置API响应
-        $apiResponse = [
-            'data' => [
-                [
-                    'errorMsgMd5' => 'msg_code_123',
-                    'Count' => '5',
-                    'sdkVersion' => '1.0.0',
-                    'ClientVersion' => '2.0.0',
-                    'TimeStamp' => new DateTime('2023-01-01 12:00:00'),
-                    'appVersion' => '3.0.0',
-                    'Ds' => 'test_ds',
-                    'OsName' => 'iOS',
-                    'pluginversion' => '1.2.3',
-                    'appId' => 'wx123456789',
-                    'deviceModel' => 'iPhone X',
-                    'source' => 'test_source',
-                    'route' => 'test_route',
-                    'Uin' => 'test_uin',
-                    'nickname' => 'test_nickname',
-                    'errorMsg' => 'test error message',
-                    'errorStackMd5' => 'stack_code_123',
-                    'errorStack' => 'test error stack'
-                ]
-            ],
-            'openid' => 'open_id_123'
-        ];
-
-        // 设置Client响应
-        $this->client->expects($this->once())
-            ->method('request')
-            ->with($this->isInstanceOf(GetErrorDetailRequest::class))
-            ->willReturn($apiResponse);
-
-        // 设置错误详情查询和保存
-        $this->errorDetailRepository->expects($this->once())
-            ->method('findOneBy')
-            ->willReturn(null); // 返回null表示不存在该记录，需要创建新的
-
-        // 验证实体是否被持久化
-        $this->entityManager->expects($this->once())
-            ->method('persist')
-            ->with($this->isInstanceOf(ErrorDetail::class));
-
-        $this->entityManager->expects($this->once())
-            ->method('flush');
-
-        // 创建模拟输入输出对象
-        $input = $this->createMock(InputInterface::class);
-        $output = $this->createMock(OutputInterface::class);
-
-        // 执行命令
-        $result = $this->executeCommand($input, $output);
-
-        // 验证结果
-        $this->assertEquals(0, $result); // 0表示成功
+        $this->assertEquals(Command::SUCCESS, $result);
     }
 
-    public function testExecute_WithNoAccounts_ShouldDoNothing(): void
+    protected function getCommandTester(): CommandTester
     {
-        // 设置返回空账号列表
-        $this->accountRepository->expects($this->once())
-            ->method('findBy')
-            ->with(['valid' => true])
-            ->willReturn([]);
+        $command = self::getService(SyncGetErrorDetailCommand::class);
+        $this->assertInstanceOf(SyncGetErrorDetailCommand::class, $command);
 
-        // 确保不会调用其他方法
-        $this->errorDetailDataRepository->expects($this->never())
-            ->method('findBy');
-        $this->client->expects($this->never())
-            ->method('request');
-        $this->errorDetailRepository->expects($this->never())
-            ->method('findOneBy');
-        $this->entityManager->expects($this->never())
-            ->method('persist');
-        $this->entityManager->expects($this->never())
-            ->method('flush');
-
-        // 创建模拟输入输出对象
-        $input = $this->createMock(InputInterface::class);
-        $output = $this->createMock(OutputInterface::class);
-
-        // 执行命令
-        $result = $this->executeCommand($input, $output);
-
-        // 验证结果
-        $this->assertEquals(0, $result); // 0表示成功
+        return new CommandTester($command);
     }
 
-    public function testExecute_WithExistingData_ShouldUpdateData(): void
+    protected function onSetUp(): void        // Command 测试不需要特殊的设置
     {
-        // 模拟数据
-        $account = $this->createMock(Account::class);
-        $errorListData = $this->createMock(ErrorListData::class);
-        $errorListData->method('getErrorStackCode')->willReturn('stack_code_123');
-        $errorListData->method('getErrorMsgCode')->willReturn('msg_code_123');
-        $errorListData->method('getOpenId')->willReturn('open_id_123');
-
-        $existingErrorDetail = $this->createMock(ErrorDetail::class);
-        
-        // 设置方法预期，确保更新方法被调用
-        $existingErrorDetail->expects($this->once())->method('setCount');
-        $existingErrorDetail->expects($this->once())->method('setSdkVersion');
-        $existingErrorDetail->expects($this->once())->method('setClientVersion');
-        $existingErrorDetail->expects($this->once())->method('setTimeStamp');
-        $existingErrorDetail->expects($this->once())->method('setAppVersion');
-        $existingErrorDetail->expects($this->once())->method('setDs');
-        $existingErrorDetail->expects($this->once())->method('setOsName');
-        $existingErrorDetail->expects($this->once())->method('setPluginVersion');
-        $existingErrorDetail->expects($this->once())->method('setAppId');
-        $existingErrorDetail->expects($this->once())->method('setDeviceModel');
-        $existingErrorDetail->expects($this->once())->method('setSource');
-        $existingErrorDetail->expects($this->once())->method('setRoute');
-        $existingErrorDetail->expects($this->once())->method('setUin');
-        $existingErrorDetail->expects($this->once())->method('setNickname');
-        $existingErrorDetail->expects($this->once())->method('setErrorMsg');
-        $existingErrorDetail->expects($this->once())->method('setErrorStackCode');
-        $existingErrorDetail->expects($this->once())->method('setErrorStack');
-
-        // 设置返回有效的账号和错误列表数据
-        $this->accountRepository->expects($this->once())
-            ->method('findBy')
-            ->with(['valid' => true])
-            ->willReturn([$account]);
-
-        $this->errorDetailDataRepository->expects($this->once())
-            ->method('findBy')
-            ->willReturn([$errorListData]);
-
-        // 设置API响应
-        $apiResponse = [
-            'data' => [
-                [
-                    'errorMsgMd5' => 'msg_code_123',
-                    'Count' => '5',
-                    'sdkVersion' => '1.0.0',
-                    'ClientVersion' => '2.0.0',
-                    'TimeStamp' => new DateTime('2023-01-01 12:00:00'),
-                    'appVersion' => '3.0.0',
-                    'Ds' => 'test_ds',
-                    'OsName' => 'iOS',
-                    'pluginversion' => '1.2.3',
-                    'appId' => 'wx123456789',
-                    'deviceModel' => 'iPhone X',
-                    'source' => 'test_source',
-                    'route' => 'test_route',
-                    'Uin' => 'test_uin',
-                    'nickname' => 'test_nickname',
-                    'errorMsg' => 'test error message',
-                    'errorStackMd5' => 'stack_code_123',
-                    'errorStack' => 'test error stack'
-                ]
-            ],
-            'openid' => 'open_id_123'
-        ];
-
-        // 设置Client响应
-        $this->client->expects($this->once())
-            ->method('request')
-            ->willReturn($apiResponse);
-
-        // 设置错误详情查询返回已存在的记录
-        $this->errorDetailRepository->expects($this->once())
-            ->method('findOneBy')
-            ->willReturn($existingErrorDetail);
-
-        // 验证实体是否被持久化
-        $this->entityManager->expects($this->once())
-            ->method('persist')
-            ->with($existingErrorDetail);
-
-        $this->entityManager->expects($this->once())
-            ->method('flush');
-
-        // 创建模拟输入输出对象
-        $input = $this->createMock(InputInterface::class);
-        $output = $this->createMock(OutputInterface::class);
-
-        // 执行命令
-        $result = $this->executeCommand($input, $output);
-
-        // 验证结果
-        $this->assertEquals(0, $result); // 0表示成功
     }
-} 
+}

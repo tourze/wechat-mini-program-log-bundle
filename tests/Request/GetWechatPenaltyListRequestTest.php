@@ -2,21 +2,34 @@
 
 namespace WechatMiniProgramLogBundle\Tests\Request;
 
-use PHPUnit\Framework\TestCase;
-use WechatMiniProgramLogBundle\Request\GetWechatPenaltyListRequest;
+use PHPUnit\Framework\Attributes\CoversClass;
+use HttpClientBundle\Tests\Request\RequestTestCase;
 use WechatMiniProgramBundle\Entity\Account;
+use WechatMiniProgramLogBundle\Request\GetWechatPenaltyListRequest;
 
-class GetWechatPenaltyListRequestTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(GetWechatPenaltyListRequest::class)]
+final class GetWechatPenaltyListRequestTest extends RequestTestCase
 {
     private GetWechatPenaltyListRequest $request;
 
     protected function setUp(): void
     {
+        parent::setUp();
+
         $this->request = new GetWechatPenaltyListRequest();
     }
 
     public function testAccount(): void
     {
+        /*
+         * 使用具体类 Account 进行 Mock，因为：
+         * 1) Account是业务实体，没有对应的接口
+         * 2) 在测试中需要模拟实体的属性和方法
+         * 3) 这是Entity测试的标准做法
+         */
         $account = $this->createMock(Account::class);
         $this->request->setAccount($account);
         $this->assertSame($account, $this->request->getAccount());
@@ -48,14 +61,17 @@ class GetWechatPenaltyListRequestTest extends TestCase
     {
         $this->request->setOffset(5);
         $this->request->setLimit(15);
-        
+
         $options = $this->request->getRequestOptions();
-        
-        $this->assertIsArray($options);
+
+        self::assertNotNull($options);
         $this->assertArrayHasKey('query', $options);
-        $this->assertArrayHasKey('offset', $options['query']);
-        $this->assertArrayHasKey('limit', $options['query']);
-        $this->assertSame(5, $options['query']['offset']);
-        $this->assertSame(15, $options['query']['limit']);
+
+        $queryOptions = $options['query'];
+        self::assertIsArray($queryOptions);
+        $this->assertArrayHasKey('offset', $queryOptions);
+        $this->assertArrayHasKey('limit', $queryOptions);
+        $this->assertSame(5, $queryOptions['offset']);
+        $this->assertSame(15, $queryOptions['limit']);
     }
 }

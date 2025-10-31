@@ -2,21 +2,34 @@
 
 namespace WechatMiniProgramLogBundle\Tests\Request;
 
-use PHPUnit\Framework\TestCase;
-use WechatMiniProgramLogBundle\Request\GetWechatFeedbackRequest;
+use PHPUnit\Framework\Attributes\CoversClass;
+use HttpClientBundle\Tests\Request\RequestTestCase;
 use WechatMiniProgramBundle\Entity\Account;
+use WechatMiniProgramLogBundle\Request\GetWechatFeedbackRequest;
 
-class GetWechatFeedbackRequestTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(GetWechatFeedbackRequest::class)]
+final class GetWechatFeedbackRequestTest extends RequestTestCase
 {
     private GetWechatFeedbackRequest $request;
 
     protected function setUp(): void
     {
+        parent::setUp();
+
         $this->request = new GetWechatFeedbackRequest();
     }
 
     public function testAccount(): void
     {
+        /*
+         * 使用具体类 Account 进行 Mock，因为：
+         * 1) Account是业务实体，没有对应的接口
+         * 2) 在测试中需要模拟实体的属性和方法
+         * 3) 这是Entity测试的标准做法
+         */
         $account = $this->createMock(Account::class);
         $this->request->setAccount($account);
         $this->assertSame($account, $this->request->getAccount());
@@ -48,14 +61,17 @@ class GetWechatFeedbackRequestTest extends TestCase
     {
         $this->request->setPage(3);
         $this->request->setNum(30);
-        
+
         $options = $this->request->getRequestOptions();
-        
-        $this->assertIsArray($options);
+
+        self::assertNotNull($options);
         $this->assertArrayHasKey('query', $options);
-        $this->assertArrayHasKey('page', $options['query']);
-        $this->assertArrayHasKey('num', $options['query']);
-        $this->assertSame(3, $options['query']['page']);
-        $this->assertSame(30, $options['query']['num']);
+
+        $queryOptions = $options['query'];
+        self::assertIsArray($queryOptions);
+        $this->assertArrayHasKey('page', $queryOptions);
+        $this->assertArrayHasKey('num', $queryOptions);
+        $this->assertSame(3, $queryOptions['page']);
+        $this->assertSame(30, $queryOptions['num']);
     }
 }

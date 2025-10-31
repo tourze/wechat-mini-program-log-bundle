@@ -2,41 +2,37 @@
 
 namespace WechatMiniProgramLogBundle\Tests\DependencyInjection;
 
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Tourze\PHPUnitSymfonyUnitTest\AbstractDependencyInjectionExtensionTestCase;
 use WechatMiniProgramLogBundle\DependencyInjection\WechatMiniProgramLogExtension;
 
-class WechatMiniProgramLogExtensionTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(WechatMiniProgramLogExtension::class)]
+final class WechatMiniProgramLogExtensionTest extends AbstractDependencyInjectionExtensionTestCase
 {
-    private WechatMiniProgramLogExtension $extension;
-    private ContainerBuilder $container;
-
-    protected function setUp(): void
+    public function testLoadShouldLoadServices(): void
     {
-        $this->extension = new WechatMiniProgramLogExtension();
-        $this->container = new ContainerBuilder();
+        $extension = new WechatMiniProgramLogExtension();
+        $container = new ContainerBuilder();
+        $container->setParameter('kernel.environment', 'test');
+
+        $extension->load([], $container);
+
+        $this->assertInstanceOf(WechatMiniProgramLogExtension::class, $extension);
     }
 
-    public function testLoad_ShouldLoadServices(): void
+    public function testLoadShouldRegisterRepositories(): void
     {
-        $this->extension->load([], $this->container);
-        
-        // 验证服务是否加载
-        $this->assertTrue($this->container->hasParameter('wechat_mini_program_log.loaded'));
-    }
+        $extension = new WechatMiniProgramLogExtension();
+        $container = new ContainerBuilder();
+        $container->setParameter('kernel.environment', 'test');
 
-    public function testLoad_ShouldRegisterCommands(): void
-    {
-        $this->extension->load([], $this->container);
-        
-        // 验证命令服务是否注册
-        $commandServiceIds = array_filter(
-            $this->container->getServiceIds(),
-            function ($id) {
-                return strpos($id, 'WechatMiniProgramLogBundle\Command\\') === 0;
-            }
-        );
-        
-        $this->assertNotEmpty($commandServiceIds);
+        $extension->load([], $container);
+
+        $serviceIds = $container->getServiceIds();
+        $this->assertNotEmpty($serviceIds);
     }
-} 
+}

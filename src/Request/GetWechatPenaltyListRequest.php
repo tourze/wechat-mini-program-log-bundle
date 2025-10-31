@@ -20,6 +20,9 @@ class GetWechatPenaltyListRequest extends WithAccountRequest
         return '/wxaapi/wxamptrade/get_penalty_list';
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getRequestOptions(): ?array
     {
         return [
@@ -55,6 +58,9 @@ class GetWechatPenaltyListRequest extends WithAccountRequest
         $this->limit = $limit;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getRequestPayload(): ?array
     {
         return [];

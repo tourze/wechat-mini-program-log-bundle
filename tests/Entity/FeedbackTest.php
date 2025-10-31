@@ -2,23 +2,53 @@
 
 namespace WechatMiniProgramLogBundle\Tests\Entity;
 
-use PHPUnit\Framework\TestCase;
-use WechatMiniProgramLogBundle\Entity\Feedback;
-use WechatMiniProgramBundle\Entity\Account;
 use Carbon\CarbonImmutable;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Tourze\PHPUnitDoctrineEntity\AbstractEntityTestCase;
+use WechatMiniProgramBundle\Entity\Account;
+use WechatMiniProgramLogBundle\Entity\Feedback;
 use WechatMiniProgramLogBundle\Enum\FeedbackType;
 
-class FeedbackTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(Feedback::class)]
+final class FeedbackTest extends AbstractEntityTestCase
 {
+    protected function createEntity(): object
+    {
+        return new Feedback();
+    }
+
+    /**
+     * @return iterable<string, array{string, mixed}>
+     */
+    public static function propertiesProvider(): iterable
+    {
+        return [
+            'mediaIds' => ['mediaIds', ['key' => 'value']],
+        ];
+    }
+
     private Feedback $feedback;
 
     protected function setUp(): void
     {
+        parent::setUp();
+
         $this->feedback = new Feedback();
     }
 
     public function testAccount(): void
     {
+        /*
+         * 使用具体类 Account 进行 Mock，因为：
+         * 1) Account是业务实体，没有对应的接口
+         * 2) 在测试中需要模拟实体的属性和方法
+         * 3) 这是Entity测试的标准做法
+         */
         $account = $this->createMock(Account::class);
         $this->feedback->setAccount($account);
         $this->assertSame($account, $this->feedback->getAccount());

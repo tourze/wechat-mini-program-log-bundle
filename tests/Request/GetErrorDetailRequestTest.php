@@ -2,22 +2,35 @@
 
 namespace WechatMiniProgramLogBundle\Tests\Request;
 
-use PHPUnit\Framework\TestCase;
-use WechatMiniProgramLogBundle\Request\GetErrorDetailRequest;
-use WechatMiniProgramBundle\Entity\Account;
 use Carbon\CarbonImmutable;
+use PHPUnit\Framework\Attributes\CoversClass;
+use HttpClientBundle\Tests\Request\RequestTestCase;
+use WechatMiniProgramBundle\Entity\Account;
+use WechatMiniProgramLogBundle\Request\GetErrorDetailRequest;
 
-class GetErrorDetailRequestTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(GetErrorDetailRequest::class)]
+final class GetErrorDetailRequestTest extends RequestTestCase
 {
     private GetErrorDetailRequest $request;
 
     protected function setUp(): void
     {
+        parent::setUp();
+
         $this->request = new GetErrorDetailRequest();
     }
 
     public function testAccount(): void
     {
+        /*
+         * 使用具体类 Account 进行 Mock，因为：
+         * 1) Account是业务实体，没有对应的接口
+         * 2) 在测试中需要模拟实体的属性和方法
+         * 3) 这是Entity测试的标准做法
+         */
         $account = $this->createMock(Account::class);
         $this->request->setAccount($account);
         $this->assertSame($account, $this->request->getAccount());
@@ -117,14 +130,17 @@ class GetErrorDetailRequestTest extends TestCase
         $this->request->setOffset(10);
         $this->request->setLimit(30);
         $this->request->setDesc('1');
-        
+
         $options = $this->request->getRequestOptions();
-        
-        $this->assertIsArray($options);
+
+        self::assertNotNull($options);
         $this->assertArrayHasKey('json', $options);
-        $this->assertArrayHasKey('errorMsgMd5', $options['json']);
-        $this->assertArrayHasKey('errorStackMd5', $options['json']);
-        $this->assertSame('msg123', $options['json']['errorMsgMd5']);
-        $this->assertSame('stack123', $options['json']['errorStackMd5']);
+
+        $jsonOptions = $options['json'];
+        self::assertIsArray($jsonOptions);
+        $this->assertArrayHasKey('errorMsgMd5', $jsonOptions);
+        $this->assertArrayHasKey('errorStackMd5', $jsonOptions);
+        $this->assertSame('msg123', $jsonOptions['errorMsgMd5']);
+        $this->assertSame('stack123', $jsonOptions['errorStackMd5']);
     }
 }

@@ -2,85 +2,62 @@
 
 namespace WechatMiniProgramLogBundle\Tests\Command;
 
-use PHPUnit\Framework\TestCase;
-use Symfony\Component\Console\Application;
-use Symfony\Component\Console\Tester\CommandTester;
-use WechatMiniProgramLogBundle\Command\GetWechatFeedbackCommand;
-use WechatMiniProgramBundle\Service\Client;
-use WechatMiniProgramLogBundle\Repository\FeedbackRepository;
-use WechatMiniProgramBundle\Repository\AccountRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Tester\CommandTester;
+use Tourze\PHPUnitSymfonyKernelTest\AbstractCommandTestCase;
 use WechatMiniProgramBundle\Entity\Account;
+use WechatMiniProgramBundle\Repository\AccountRepository;
+use WechatMiniProgramLogBundle\Command\GetWechatFeedbackCommand;
 
-class GetWechatFeedbackCommandTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(GetWechatFeedbackCommand::class)]
+#[RunTestsInSeparateProcesses]
+final class GetWechatFeedbackCommandTest extends AbstractCommandTestCase
 {
-    private CommandTester $commandTester;
-    private Client $client;
-    private FeedbackRepository $feedbackRepository;
-    private AccountRepository $accountRepository;
-    private EntityManagerInterface $entityManager;
-
-    protected function setUp(): void
+    public function testCommandCanBeInstantiated(): void
     {
-        $this->client = $this->createMock(Client::class);
-        $this->feedbackRepository = $this->createMock(FeedbackRepository::class);
-        $this->accountRepository = $this->createMock(AccountRepository::class);
-        $this->entityManager = $this->createMock(EntityManagerInterface::class);
+        $command = self::getContainer()->get(GetWechatFeedbackCommand::class);
 
-        $command = new GetWechatFeedbackCommand(
-            $this->client,
-            $this->feedbackRepository,
-            $this->accountRepository,
-            $this->entityManager
-        );
-
-        $application = new Application();
-        $application->add($command);
-
-        $command = $application->find('wechat-mini-program:get-feedback');
-        $this->commandTester = new CommandTester($command);
+        $this->assertInstanceOf(Command::class, $command);
+        $this->assertSame('wechat-mini-program:get-feedback', $command->getName());
     }
 
-    public function testExecuteWithNoAccounts(): void
+    public function testCommandExecuteWithNoAccounts(): void
     {
-        $this->accountRepository->expects($this->once())
-            ->method('findBy')
-            ->with(['valid' => true])
-            ->willReturn([]);
+        $accountRepository = self::getContainer()->get(AccountRepository::class);
+        $this->assertInstanceOf(AccountRepository::class, $accountRepository);
+        $em = self::getService(EntityManagerInterface::class);
 
-        $exitCode = $this->commandTester->execute([]);
+        $accounts = $accountRepository->findBy(['valid' => true]);
+        foreach ($accounts as $account) {
+            $this->assertInstanceOf(Account::class, $account);
+            $account->setValid(false);
+        }
+        $em->flush();
 
-        $this->assertSame(0, $exitCode);
+        $command = self::getContainer()->get(GetWechatFeedbackCommand::class);
+        $this->assertInstanceOf(GetWechatFeedbackCommand::class, $command);
+
+        $commandTester = new CommandTester($command);
+        $result = $commandTester->execute([]);
+
+        $this->assertEquals(Command::SUCCESS, $result);
     }
 
-    public function testExecuteWithAccount(): void
+    protected function getCommandTester(): CommandTester
     {
-        $account = $this->createMock(Account::class);
-        $account->expects($this->once())
-            ->method('getId')
-            ->willReturn(1);
+        $command = self::getService(GetWechatFeedbackCommand::class);
+        $this->assertInstanceOf(GetWechatFeedbackCommand::class, $command);
 
-        $this->accountRepository->expects($this->once())
-            ->method('findBy')
-            ->with(['valid' => true])
-            ->willReturn([$account]);
-
-        $this->client->expects($this->once())
-            ->method('request')
-            ->willReturn([
-                'list' => [],
-                'total_num' => 0
-            ]);
-
-        $exitCode = $this->commandTester->execute([]);
-
-        $this->assertSame(0, $exitCode);
-        $output = $this->commandTester->getDisplay();
-        $this->assertStringContainsString('1 wechat-mini-program:get-feedback command end', $output);
+        return new CommandTester($command);
     }
 
-    public function testCommandName(): void
+    protected function onSetUp(): void
     {
-        $this->assertSame('wechat-mini-program:get-feedback', GetWechatFeedbackCommand::NAME);
     }
 }

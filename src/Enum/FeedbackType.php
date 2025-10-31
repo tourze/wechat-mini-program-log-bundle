@@ -2,13 +2,14 @@
 
 namespace WechatMiniProgramLogBundle\Enum;
 
+use Tourze\EnumExtra\BadgeInterface;
 use Tourze\EnumExtra\Itemable;
 use Tourze\EnumExtra\ItemTrait;
 use Tourze\EnumExtra\Labelable;
 use Tourze\EnumExtra\Selectable;
 use Tourze\EnumExtra\SelectTrait;
 
-enum FeedbackType: string implements Labelable, Itemable, Selectable
+enum FeedbackType: string implements Labelable, Itemable, Selectable, BadgeInterface
 {
     use ItemTrait;
     use SelectTrait;
@@ -33,6 +34,15 @@ enum FeedbackType: string implements Labelable, Itemable, Selectable
             self::TYPE_6 => '界面错位',
             self::TYPE_7 => '界面加载慢',
             self::TYPE_8 => '其他异常',
+        };
+    }
+
+    public function getBadge(): string
+    {
+        return match ($this) {
+            self::TYPE_1, self::TYPE_2, self::TYPE_5 => 'danger',
+            self::TYPE_3, self::TYPE_4, self::TYPE_6, self::TYPE_7 => 'warning',
+            self::TYPE_8 => 'info',
         };
     }
 }

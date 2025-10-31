@@ -29,6 +29,9 @@ class GetWechatFeedbackRequest extends WithAccountRequest
         return '/wxaapi/feedback/list';
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getRequestOptions(): ?array
     {
         $query = [
