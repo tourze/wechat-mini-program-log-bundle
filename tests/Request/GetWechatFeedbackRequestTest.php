@@ -2,8 +2,8 @@
 
 namespace WechatMiniProgramLogBundle\Tests\Request;
 
+use HttpClientBundle\Test\RequestTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
-use HttpClientBundle\Tests\Request\RequestTestCase;
 use WechatMiniProgramBundle\Entity\Account;
 use WechatMiniProgramLogBundle\Request\GetWechatFeedbackRequest;
 
