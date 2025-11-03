@@ -9,6 +9,7 @@ use Tourze\DoctrineSnowflakeBundle\DoctrineSnowflakeBundle;
 use Tourze\DoctrineTimestampBundle\DoctrineTimestampBundle;
 use Tourze\Symfony\CronJob\CronJobBundle;
 use WechatMiniProgramBundle\WechatMiniProgramBundle;
+use Tourze\EasyAdminMenuBundle\EasyAdminMenuBundle;
 
 class WechatMiniProgramLogBundle extends Bundle implements BundleDependencyInterface
 {
@@ -20,6 +21,7 @@ class WechatMiniProgramLogBundle extends Bundle implements BundleDependencyInter
             DoctrineTimestampBundle::class => ['all' => true],
             CronJobBundle::class => ['all' => true],
             WechatMiniProgramBundle::class => ['all' => true],
+            EasyAdminMenuBundle::class => ['all' => true],
         ];
     }
 }
