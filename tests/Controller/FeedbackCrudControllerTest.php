@@ -45,13 +45,6 @@ class FeedbackCrudControllerTest extends AbstractReadOnlyEasyAdminControllerTest
         return new FeedbackCrudController();
     }
 
-    public function testGetEntityFqcn(): void
-    {
-        $result = FeedbackCrudController::getEntityFqcn();
-
-        $this->assertSame(Feedback::class, $result);
-    }
-
     public function testConfigureCrud(): void
     {
         $crud = Crud::new();

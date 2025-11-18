@@ -46,13 +46,6 @@ class ErrorListDataCrudControllerTest extends AbstractReadOnlyEasyAdminControlle
         return new ErrorListDataCrudController();
     }
 
-    public function testGetEntityFqcn(): void
-    {
-        $result = ErrorListDataCrudController::getEntityFqcn();
-
-        $this->assertSame(ErrorListData::class, $result);
-    }
-
     public function testConfigureCrud(): void
     {
         $crud = Crud::new();

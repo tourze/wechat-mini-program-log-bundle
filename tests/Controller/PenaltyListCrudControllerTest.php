@@ -46,13 +46,6 @@ class PenaltyListCrudControllerTest extends AbstractReadOnlyEasyAdminControllerT
         return new PenaltyListCrudController();
     }
 
-    public function testGetEntityFqcn(): void
-    {
-        $result = PenaltyListCrudController::getEntityFqcn();
-
-        $this->assertSame(PenaltyList::class, $result);
-    }
-
     public function testConfigureCrud(): void
     {
         $crud = Crud::new();

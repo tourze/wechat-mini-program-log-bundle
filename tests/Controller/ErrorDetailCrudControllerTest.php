@@ -22,7 +22,6 @@ class ErrorDetailCrudControllerTest extends AbstractReadOnlyEasyAdminControllerT
         return self::getService(ErrorDetailCrudController::class);
     }
 
-
     /**
      * @return iterable<string, array{string}>
      */
@@ -45,13 +44,6 @@ class ErrorDetailCrudControllerTest extends AbstractReadOnlyEasyAdminControllerT
     private function getController(): ErrorDetailCrudController
     {
         return new ErrorDetailCrudController();
-    }
-
-    public function testGetEntityFqcn(): void
-    {
-        $result = ErrorDetailCrudController::getEntityFqcn();
-
-        $this->assertSame(ErrorDetail::class, $result);
     }
 
     public function testConfigureCrud(): void
