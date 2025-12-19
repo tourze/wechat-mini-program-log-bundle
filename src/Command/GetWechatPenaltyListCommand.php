@@ -23,7 +23,7 @@ use WechatMiniProgramLogBundle\Request\GetWechatPenaltyListRequest;
 #[AsCronTask(expression: '45 13 * * *')]
 #[AsCommand(name: self::NAME, description: '获取小程序交易体验分违规记录')]
 #[WithMonologChannel(channel: 'wechat_mini_program_log')]
-class GetWechatPenaltyListCommand extends Command
+final class GetWechatPenaltyListCommand extends Command
 {
     public const NAME = 'wechat-mini-program:get-penalty';
 

@@ -4,7 +4,7 @@ namespace WechatMiniProgramLogBundle\DependencyInjection;
 
 use Tourze\SymfonyDependencyServiceLoader\AutoExtension;
 
-class WechatMiniProgramLogExtension extends AutoExtension
+final class WechatMiniProgramLogExtension extends AutoExtension
 {
     protected function getConfigDir(): string
     {

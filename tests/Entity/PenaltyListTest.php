@@ -140,7 +140,7 @@ final class PenaltyListTest extends AbstractEntityTestCase
     public function testSetInvalidValuesShouldThrowTypeError(): void
     {
         $this->expectException(\TypeError::class);
-        /* @phpstan-ignore-next-line */
+        
         $this->penaltyList->setIllegalTime('not-a-date');
     }
 }

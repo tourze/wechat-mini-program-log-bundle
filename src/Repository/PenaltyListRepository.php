@@ -11,7 +11,7 @@ use WechatMiniProgramLogBundle\Entity\PenaltyList;
  * @extends ServiceEntityRepository<PenaltyList>
  */
 #[AsRepository(entityClass: PenaltyList::class)]
-class PenaltyListRepository extends ServiceEntityRepository
+final class PenaltyListRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {

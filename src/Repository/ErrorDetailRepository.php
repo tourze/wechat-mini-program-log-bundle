@@ -11,7 +11,7 @@ use WechatMiniProgramLogBundle\Entity\ErrorDetail;
  * @extends ServiceEntityRepository<ErrorDetail>
  */
 #[AsRepository(entityClass: ErrorDetail::class)]
-class ErrorDetailRepository extends ServiceEntityRepository
+final class ErrorDetailRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {

@@ -29,7 +29,7 @@ use WechatMiniProgramLogBundle\Request\GetErrorDetailRequest;
 #[AsCronTask(expression: '22 8 * * *')]
 #[AsCommand(name: self::NAME, description: '运维中心-查询js错误详情')]
 #[WithMonologChannel(channel: 'wechat_mini_program_log')]
-class SyncGetErrorDetailCommand extends Command
+final class SyncGetErrorDetailCommand extends Command
 {
     public const NAME = 'wechat-mini-program:sync-get-error-detail';
 

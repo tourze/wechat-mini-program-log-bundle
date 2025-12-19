@@ -27,7 +27,7 @@ use WechatMiniProgramLogBundle\Request\GetErrorListRequest;
 #[AsCronTask(expression: '35 11 * * *')]
 #[AsCommand(name: self::NAME, description: '运维中心-查询错误列表')]
 #[WithMonologChannel(channel: 'wechat_mini_program_log')]
-class SyncGetErrorListCommand extends Command
+final class SyncGetErrorListCommand extends Command
 {
     public const NAME = 'wechat-mini-program:sync-get-error-list';
 

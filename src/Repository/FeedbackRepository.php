@@ -11,7 +11,7 @@ use WechatMiniProgramLogBundle\Entity\Feedback;
  * @extends ServiceEntityRepository<Feedback>
  */
 #[AsRepository(entityClass: Feedback::class)]
-class FeedbackRepository extends ServiceEntityRepository
+final class FeedbackRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {

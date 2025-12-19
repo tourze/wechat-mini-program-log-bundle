@@ -22,7 +22,7 @@ use WechatMiniProgramLogBundle\Request\GetWechatFeedbackRequest;
 #[AsCronTask(expression: '15 * * * *')]
 #[AsCommand(name: self::NAME, description: '定期获取小程序反馈信息')]
 #[WithMonologChannel(channel: 'wechat_mini_program_log')]
-class GetWechatFeedbackCommand extends Command
+final class GetWechatFeedbackCommand extends Command
 {
     public const NAME = 'wechat-mini-program:get-feedback';
 
